@@ -59,11 +59,17 @@ module fifo_tb_top;
 
 
     initial begin: run_test
+        string cli_test_name;
         $timeformat(-9, 0, " ns", 5);
-        env = new(vif);
+
+        //if (!$value$plusarg("TESTNAME=%s", cli_test_name)) begin
+        //    $fatal(1, "[TOP] +TESTNAME argument is missing!");
+        //end
+        //env = new(vif);
         initialize();
     
-        env.run();
+        //env.run();
+        test_factory::run_test(vif);
 
         $finish;
     end: run_test

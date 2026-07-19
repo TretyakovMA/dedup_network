@@ -43,7 +43,7 @@ UVM_SRC        = $(QUESTASIM_DIR)/verilog_src/uvm-1.2/src
 UVM_DPI        = $(QUESTASIM_DIR)/uvm-1.2/$(DPI_OS_DIR)/uvm_dpi
 
 # Переменные от Python
-TEST_NAME      ?= simple_test
+TEST_NAME      ?= fifo_write_only_test
 SEED           ?= random
 VERBOSITY      ?= UVM_LOW
 ITER           ?= 1
@@ -75,7 +75,7 @@ sim:
 		$(TOP_MODULE) \
 		-coverage \
 		-sv_seed $(SEED) \
-		"+UVM_TESTNAME=$(TEST_NAME)" \
+		+TESTNAME=$(TEST_NAME) \
 		"+RUN_COUNT=$(ITER)" \
 		"+UVM_VERBOSITY=$(VERBOSITY)" \
 		"+SIM_START_TIME=$(SIM_START_TIME)" \
