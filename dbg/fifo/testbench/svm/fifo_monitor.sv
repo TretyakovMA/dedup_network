@@ -1,12 +1,16 @@
 `ifndef FIFO_MONITOR
 `define FIFO_MONITOR
-class fifo_monitor;
+class fifo_monitor extends svm_component;
     vif_t     vif;
     mailbox_t mon2scb;
 
-    function new(vif_t vif, mailbox_t mon2scb);
-        this.vif = vif;
+    function new(string name, svm_component parent, mailbox_t mon2scb);
+        super.new(name, parent);
+        
         this.mon2scb = mon2scb;
+        if (!svm_pkg::svm_config_db#(vif_t)::get("vif", this.vif)) begin
+            $fatal(1, "[MON] ERROR: Virtual interface not found in svm_config_db!");
+        end
     endfunction
 
     task run();
@@ -14,7 +18,7 @@ class fifo_monitor;
             @(vif.mon_cb);
             
             if (vif.mon_cb.w_en || vif.mon_cb.r_en) begin
-                fifo_transaction tx = new();
+                fifo_transaction tx = new("tr", this);
                 if(vif.mon_cb.w_en) begin
                     tx.op   = WRITE;
                     tx.data = vif.w_data; 

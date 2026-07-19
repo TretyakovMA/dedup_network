@@ -18,6 +18,8 @@ module fifo_tb_top;
 
     fifo_if #(WIDTH) vif(clk, rst_n);
 
+    import svm_pkg::*;
+
     import fifo_pkg::*;
 
     fifo_environment  env;
@@ -62,14 +64,16 @@ module fifo_tb_top;
         string cli_test_name;
         $timeformat(-9, 0, " ns", 5);
 
-        //if (!$value$plusarg("TESTNAME=%s", cli_test_name)) begin
-        //    $fatal(1, "[TOP] +TESTNAME argument is missing!");
-        //end
+        svm_config_db#(virtual fifo_if #(WIDTH))::set("vif", vif);
+
         //env = new(vif);
         initialize();
+
+        svm_factory::run_test();
+        #100;
     
         //env.run();
-        test_factory::run_test(vif);
+        //test_factory::run_test(vif);
 
         $finish;
     end: run_test

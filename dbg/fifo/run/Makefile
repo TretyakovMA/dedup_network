@@ -34,6 +34,10 @@ TB_TOP_PATH   := $(DBG_PATH)/testbench
 RTL_PATH      := $(PROJECT_PATH)/rtl
 TB_PKG_PATH   := $(TB_TOP_PATH)/svm
 
+SVM_PATH	  := $(PROJECT_PATH)/dbg/common/svm
+
+SVM_PKG       := svm_pkg.sv
+
 TOP_MODULE    ?= fifo_tb_top
 RTL_MODULE    ?= fifo.sv
 TB_PKG        ?= fifo_pkg.sv
@@ -61,6 +65,7 @@ pre_compile:
 
 compile: pre_compile
 	vlog -sv +acc -cover f +incdir+$(UVM_SRC) \
+		$(SVM_PATH)/$(SVM_PKG) \
 		$(RTL_PATH)/interfaces/fifo_if.sv \
 		$(RTL_PATH)/$(RTL_MODULE) \
 		$(TB_PKG_PATH)/$(TB_PKG) \

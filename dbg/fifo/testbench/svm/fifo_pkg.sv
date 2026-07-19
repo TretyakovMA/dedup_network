@@ -5,11 +5,11 @@ package fifo_pkg;
         `define FIFO_WIDTH 8
     `endif
 
+    import svm_pkg::*;
+
     typedef bit [`FIFO_WIDTH-1:0]          data_t;
     typedef virtual fifo_if#(`FIFO_WIDTH)  vif_t;
     typedef enum bit {WRITE = 1, READ = 0} op_t;
-
-    `include "test_factory.sv"
 
     
     `include "fifo_transaction.sv"

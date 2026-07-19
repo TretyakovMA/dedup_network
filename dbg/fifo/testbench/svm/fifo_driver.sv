@@ -1,14 +1,19 @@
 `ifndef FIFO_DRIVER
 `define FIFO_DRIVER
-class fifo_driver;
+class fifo_driver extends svm_component;
 
     vif_t     vif;
     mailbox_t gen2drv;
     
 
-    function new(vif_t vif, mailbox_t gen2drv);
-        this.vif     = vif;
+    function new(string name, svm_component parent, mailbox_t gen2drv);
+        super.new(name, parent);
+        
         this.gen2drv = gen2drv;
+
+        if (!svm_pkg::svm_config_db#(vif_t)::get("vif", this.vif)) begin
+            $fatal(1, "[DRV] ERROR: Virtual interface not found in svm_config_db!");
+        end
     endfunction: new
 
     

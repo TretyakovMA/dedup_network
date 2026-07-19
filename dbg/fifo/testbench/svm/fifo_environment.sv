@@ -1,7 +1,7 @@
 `ifndef FIFO_ENVIRONMENT
 `define FIFO_ENVIRONMENT
 
-class fifo_environment;
+class fifo_environment extends svm_component;
     // Компоненты тестбенча
     fifo_generator          gen;
     fifo_driver             drv;
@@ -14,15 +14,16 @@ class fifo_environment;
 
     vif_t vif;
 
-    function new(vif_t vif);
+    function new(string name, svm_pkg::svm_component parent);
+        super.new(name, parent);
         this.vif = vif;
         gen2drv  = new(1);
         mon2scb  = new(1);
         
-        gen = new(gen2drv);
-        drv = new(vif, gen2drv);
-        mon = new(vif, mon2scb);
-        scb = new(mon2scb);
+        gen = new("gen", this, gen2drv);
+        drv = new("drv", this, gen2drv);
+        mon = new("mon", this, mon2scb);
+        scb = new("scb", this, mon2scb);
     endfunction
 
     // Основной таск запуска теста
@@ -67,8 +68,7 @@ class fifo_environment;
         wait(gen2drv.num() == 0);
         
         // 3. Даем драйверу завершить обработку на интерфейсе и монитору её захватить
-        // Используем события тактового сигнала вместо жесткого #100
-        repeat(2) @(vif.cb);
+        #100;
         
         // 4. Ждем, пока scoreboard разберет все пришедшие от монитора транзакции
         wait(mon2scb.num() == 0);
