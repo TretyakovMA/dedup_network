@@ -1,3 +1,4 @@
+`include "svm_macros.sv"
 package svm_pkg;
 
     // ==========================================
@@ -64,6 +65,14 @@ package svm_pkg;
                 end
             join
         endtask
+    endclass
+
+    // Класс объекта
+    virtual class svm_object;
+        string name;
+        function new(string name = "");
+            this.name = name;
+        endfunction
     endclass
 
     // ==========================================
@@ -171,11 +180,46 @@ package svm_pkg;
     // Класс базы данных (остается без изменений)
     class svm_config_db #(type T = int);
         static local T database[string];
-        static function void set(string key, T value); database[key] = value; endfunction
+        static function void set(string key, T value); 
+            database[key] = value; 
+        endfunction
         static function bit get(string key, ref T value);
             if (!database.exists(key)) return 0;
             value = database[key]; return 1;
         endfunction
     endclass
 
+
+    // Класс секвенсера
+    class svm_sequencer #(type T = svm_object) extends svm_component;
+        mailbox #(T) seq_item_mailbox; // Бывший gen2drv
+
+        function new(string name, svm_component parent);
+            super.new(name, parent);
+            seq_item_mailbox = new(1); // Буфер на 1 транзакцию
+        endfunction
+
+        static svm_pkg::svm_proxy#(svm_sequencer) p = new("svm_sequencer");
+    endclass
+
+
+    virtual class svm_sequence #(type T = svm_object) extends svm_object;
+        // Сиквенс знает, что его секвенсер работает именно с транзакциями типа T
+        svm_sequencer #(T) p_sequencer;
+
+        function new(string name = "");
+            super.new(name);
+        endfunction
+
+        pure virtual task body();
+
+        // Запуск сценария на конкретном секвенсере
+        task start(svm_sequencer #(T) seqr);
+            this.p_sequencer = seqr;
+            body();
+        endtask
+    endclass
+
 endpackage
+
+

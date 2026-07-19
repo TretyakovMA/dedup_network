@@ -1,9 +1,10 @@
 `ifndef FIFO_DRIVER
 `define FIFO_DRIVER
 class fifo_driver extends svm_component;
+    `svm_component_utils(fifo_driver)
 
     vif_t     vif;
-    mailbox_t gen2drv;
+    mailbox #(fifo_transaction) seq_item_mailbox;
     
 
     function new(string name, svm_component parent);
@@ -24,7 +25,7 @@ class fifo_driver extends svm_component;
     task run_phase();
         forever begin
             fifo_transaction tx;
-            gen2drv.get(tx); // Ждем транзакцию от генератора
+            seq_item_mailbox.get(tx); // Ждем транзакцию от генератора
 
             if(tx.op == WRITE) begin
                 $display("Time: %0t, Driver received WRITE transaction: data=%b", $time, tx.data);
@@ -45,6 +46,6 @@ class fifo_driver extends svm_component;
         end
     endtask
 
-    static svm_pkg::svm_proxy#(fifo_driver) p = new("fifo_driver");
+    //static svm_pkg::svm_proxy#(fifo_driver) p = new("fifo_driver");
 endclass
 `endif

@@ -19,7 +19,7 @@ class fifo_monitor extends svm_component;
             @(vif.mon_cb);
             
             if (vif.mon_cb.w_en || vif.mon_cb.r_en) begin
-                fifo_transaction tx = new("tr", this);
+                fifo_transaction tx = new("tr");
                 if(vif.mon_cb.w_en) begin
                     tx.op   = WRITE;
                     tx.data = vif.w_data; 

@@ -47,7 +47,7 @@ UVM_SRC        = $(QUESTASIM_DIR)/verilog_src/uvm-1.2/src
 UVM_DPI        = $(QUESTASIM_DIR)/uvm-1.2/$(DPI_OS_DIR)/uvm_dpi
 
 # Переменные от Python
-TEST_NAME      ?= fifo_write_only_test
+TEST_NAME      ?= fifo_overflow_underflow_test
 SEED           ?= random
 VERBOSITY      ?= UVM_LOW
 ITER           ?= 1
@@ -64,7 +64,7 @@ pre_compile:
 	@$(CREATE_WORK)
 
 compile: pre_compile
-	vlog -sv +acc -cover f +incdir+$(UVM_SRC) \
+	vlog -sv +acc -cover f +incdir+$(UVM_SRC) +incdir+$(SVM_PATH) \
 		$(SVM_PATH)/$(SVM_PKG) \
 		$(RTL_PATH)/interfaces/fifo_if.sv \
 		$(RTL_PATH)/$(RTL_MODULE) \

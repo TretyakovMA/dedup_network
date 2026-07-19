@@ -5,7 +5,12 @@ package fifo_pkg;
         `define FIFO_WIDTH 8
     `endif
 
+    `ifndef FIFO_DEPTH
+        `define FIFO_DEPTH 16
+    `endif
+
     import svm_pkg::*;
+    `include "svm_macros.sv"
 
     typedef bit [`FIFO_WIDTH-1:0]          data_t;
     typedef virtual fifo_if#(`FIFO_WIDTH)  vif_t;
@@ -18,10 +23,11 @@ package fifo_pkg;
     `include "fifo_monitor.sv"
     `include "fifo_ref_model.sv"
     `include "fifo_scoreboard.sv"
-    `include "fifo_generator.sv"
-    `include "fifo_write_only_generator.sv"
+    `include "fifo_write_only_sequence.sv"
+    `include "fifo_overflow_underflow_seq.sv"
     `include "fifo_environment.sv"
     `include "fifo_base_test.sv"
     `include "fifo_write_only_test.sv"
+    `include "fifo_overflow_underflow_test.sv"
 endpackage
 `endif

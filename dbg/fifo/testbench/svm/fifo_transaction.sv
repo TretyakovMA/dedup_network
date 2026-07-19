@@ -1,14 +1,14 @@
 `ifndef FIFO_TRANSACTION
 `define FIFO_TRANSACTION
-class fifo_transaction extends svm_component;
+class fifo_transaction extends svm_object;
     rand data_t data;
     rand op_t   op;
     
     bit         empty;
     bit         full;
 
-    function new (string name, svm_component parent);
-        super.new(name, parent);
+    function new (string name);
+        super.new(name);
     endfunction
 
 
