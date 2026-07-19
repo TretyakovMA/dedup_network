@@ -1,13 +1,12 @@
 `ifndef FIFO_DRIVER
 `define FIFO_DRIVER
-class fifo_driver #(parameter int WIDTH = 8);
+class fifo_driver;
 
-
-    virtual fifo_if#(WIDTH) vif; 
-    mailbox #(fifo_transaction#(WIDTH)) gen2drv;
+    vif_t     vif;
+    mailbox_t gen2drv;
     
 
-    function new(virtual fifo_if#(WIDTH) vif, mailbox #(fifo_transaction#(WIDTH)) gen2drv);
+    function new(vif_t vif, mailbox_t gen2drv);
         this.vif     = vif;
         this.gen2drv = gen2drv;
     endfunction: new
@@ -18,7 +17,7 @@ class fifo_driver #(parameter int WIDTH = 8);
 
     task run();
         forever begin
-            fifo_transaction#(WIDTH) tx;
+            fifo_transaction tx;
             gen2drv.get(tx); // Ждем транзакцию от генератора
 
             if(tx.op == WRITE) begin

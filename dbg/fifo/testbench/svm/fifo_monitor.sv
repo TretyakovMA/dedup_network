@@ -1,10 +1,10 @@
 `ifndef FIFO_MONITOR
 `define FIFO_MONITOR
-class fifo_monitor #(parameter int WIDTH = 8);
-    virtual fifo_if#(WIDTH) vif;
-    mailbox #(fifo_transaction#(WIDTH)) mon2scb;
+class fifo_monitor;
+    vif_t     vif;
+    mailbox_t mon2scb;
 
-    function new(virtual fifo_if#(WIDTH) vif, mailbox #(fifo_transaction#(WIDTH)) mon2scb);
+    function new(vif_t vif, mailbox_t mon2scb);
         this.vif = vif;
         this.mon2scb = mon2scb;
     endfunction
@@ -14,7 +14,7 @@ class fifo_monitor #(parameter int WIDTH = 8);
             @(vif.mon_cb);
             
             if (vif.mon_cb.w_en || vif.mon_cb.r_en) begin
-                fifo_transaction#(WIDTH) tx = new();
+                fifo_transaction tx = new();
                 if(vif.mon_cb.w_en) begin
                     tx.op   = WRITE;
                     tx.data = vif.w_data; 

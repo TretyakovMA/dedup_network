@@ -16,29 +16,15 @@ module fifo_tb_top;
     logic clk;
     logic rst_n;
 
-    fifo_if vif(clk, rst_n);
+    fifo_if #(WIDTH) vif(clk, rst_n);
 
     import fifo_pkg::*;
 
-    fifo_environment #(.WIDTH(WIDTH), .DEPTH(DEPTH)) env;
+    fifo_environment  env;
 
     
     
 
-
-    /*fifo #(
-        .WIDTH(WIDTH),
-        .DEPTH(DEPTH)
-    ) dut (
-        .clk(vif.clk),
-        .rst_n(vif.rst_n),
-        .w_data(vif.w_data),
-        .w_en(vif.w_en),
-        .full(vif.full),
-        .r_data(vif.r_data),
-        .r_en(vif.r_en),
-        .empty(vif.empty)
-    );*/
 
     fifo #(
         .DEPTH(DEPTH)
@@ -66,9 +52,7 @@ module fifo_tb_top;
 
 
 
-    task timeout();
-        #10000;
-    endtask
+    
 
 
 
@@ -78,10 +62,8 @@ module fifo_tb_top;
         $timeformat(-9, 0, " ns", 5);
         env = new(vif);
         initialize();
-        fork
-            env.run();
-            timeout();
-        join_any
+    
+        env.run();
 
         $finish;
     end: run_test
