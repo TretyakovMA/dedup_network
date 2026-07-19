@@ -1,4 +1,5 @@
 class fifo_overflow_underflow_seq extends svm_sequence #(fifo_transaction);
+    `svm_object_utils(fifo_overflow_underflow_seq)
 
     function new(string name = "");
         super.new(name);

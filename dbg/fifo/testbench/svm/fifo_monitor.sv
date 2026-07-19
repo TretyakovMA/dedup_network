@@ -1,6 +1,7 @@
 `ifndef FIFO_MONITOR
 `define FIFO_MONITOR
 class fifo_monitor extends svm_component;
+    `svm_component_utils(fifo_monitor)
     vif_t     vif;
     mailbox_t mon2scb;
 
@@ -39,7 +40,5 @@ class fifo_monitor extends svm_component;
             end
         end
     endtask
-
-    static svm_pkg::svm_proxy#(fifo_monitor) p = new("fifo_monitor");
 endclass
 `endif

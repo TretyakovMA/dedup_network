@@ -1,7 +1,10 @@
 `ifndef FIFO_ENVIRONMENT
 `define FIFO_ENVIRONMENT
+
 typedef svm_sequencer#(fifo_transaction) fifo_sequencer;
+
 class fifo_environment extends svm_component;
+    `svm_component_utils(fifo_environment)
     // Компоненты тестбенча
     fifo_driver        drv;
     fifo_monitor       mon;
@@ -18,16 +21,17 @@ class fifo_environment extends svm_component;
         super.new(name, parent);
     endfunction
 
-    static svm_pkg::svm_proxy#(svm_pkg::svm_sequencer#(fifo_transaction)) p_seqr = new("fifo_sequencer");
+    
 
 
     function void build_phase();
         mon2scb  = new(1);
 
-        $cast(seqr, svm_pkg::svm_factory::create_component("fifo_sequencer", "seqr", this));
-        $cast(drv, svm_pkg::svm_factory::create_component("fifo_driver", "drv", this));
-        $cast(mon, svm_pkg::svm_factory::create_component("fifo_monitor", "mon", this));
-        $cast(scb, svm_pkg::svm_factory::create_component("fifo_scoreboard", "scb", this));
+        drv = fifo_driver::type_id::create("drv", this);
+        mon = fifo_monitor::type_id::create("mon", this);
+        scb = fifo_scoreboard::type_id::create("scb", this);
+
+        seqr = new("seqr", this);
         
     endfunction
 

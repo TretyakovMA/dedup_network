@@ -93,47 +93,121 @@ package svm_pkg;
     // ==========================================
     // 3. ФАБРИКА
     // ==========================================
+    // Базовый класс для всех прокси (аналог uvm_object_wrapper)
     virtual class svm_proxy_base;
-        pure virtual function svm_component create(string name, svm_component parent);
+        pure virtual function svm_component create_component(string name, svm_component parent);
+        pure virtual function svm_object    create_object(string name);
+        pure virtual function string        get_type_name(); 
     endclass
 
+    // Глобальная фабрика
     class svm_factory;
-
         static local svm_proxy_base registry[string];
-
-        // Таблица переопределений: что_просили -> что_создать_на самом деле
         static string type_overrides[string];
 
-        static function void register(string name, svm_proxy_base proxy); 
-            registry[name] = proxy; 
+        // Метод регистрации, который будут вызывать макросы
+        static function bit register_proxy(string name, svm_proxy_base proxy);
+            registry[name] = proxy;
+            return 1;
         endfunction
 
-        // Метод для регистрации подмены (аналог uvm_component::set_type_override_by_type)
         static function void set_type_override(string original_type, string override_type);
             type_overrides[original_type] = override_type;
         endfunction
 
+        // Создание компонентов (Top-Down дерево)
         static function svm_component create_component(string type_name, string inst_name, svm_component parent);
             string actual_type = type_name;
-            // Если тип был переопределен, подменяем имя типа для создания
-            if (type_overrides.exists(type_name)) begin
-                actual_type = type_overrides[type_name];
-            end
-            
-            if (!registry.exists(actual_type)) return null;
-            return registry[actual_type].create(inst_name, parent);
+            if (type_overrides.exists(type_name)) actual_type = type_overrides[type_name];
+            if (!registry.exists(actual_type)) $fatal(1, "[FACTORY] Component '%s' not registered!", actual_type);
+            return registry[actual_type].create_component(inst_name, parent);
+        endfunction
+
+        // Создание обычных объектов (транзакции, сиквенсы)
+        static function svm_object create_object(string type_name, string inst_name);
+            string actual_type = type_name;
+            if (type_overrides.exists(type_name)) actual_type = type_overrides[type_name];
+            if (!registry.exists(actual_type)) $fatal(1, "[FACTORY] Object '%s' not registered!", actual_type);
+            return registry[actual_type].create_object(inst_name);
         endfunction
     endclass
 
-    class svm_proxy #(type T = svm_component) extends svm_proxy_base;
-        function new(string name); 
-            svm_factory::register(name, this); 
+
+    // Реестр для Компонентов
+    class svm_component_registry #(type T = svm_component, string Tname = "") extends svm_proxy_base;
+        static local svm_component_registry#(T, Tname) me;
+        
+        static function svm_component_registry#(T, Tname) get();
+            if (me == null) me = new();
+            return me;
         endfunction
 
-        virtual function svm_component create(string name, svm_component parent);
-            T inst = new(name, parent); return inst;
+        virtual function svm_component create_component(string name, svm_component parent);
+            T inst = new(name, parent);
+            return inst;
+        endfunction
+
+        virtual function svm_object create_object(string name);
+            $fatal(1, "[FACTORY] Cannot create component %s as a plain object!", Tname);
+            return null;
+        endfunction
+
+        virtual function string get_type_name();
+            return Tname;
+        endfunction
+
+        // Магический метод для переопределения типа через type_id!
+        static function void set_type_override(svm_proxy_base override_proxy);
+            svm_factory::set_type_override(Tname, override_proxy.get_type_name());
+        endfunction
+
+        // Магический метод: возвращает тип T, избавляя от $cast снаружи!
+        static function T create(string name, svm_component parent);
+            svm_component comp = svm_factory::create_component(Tname, name, parent);
+            T obj;
+            if (!$cast(obj, comp)) $fatal(1, "[FACTORY] Cast failed for component %s", Tname);
+            return obj;
         endfunction
     endclass
+
+    // Реестр для Объектов (Транзакции, Сиквенсы)
+    class svm_object_registry #(type T = svm_object, string Tname = "") extends svm_proxy_base;
+        static local svm_object_registry#(T, Tname) me;
+
+        static function svm_object_registry#(T, Tname) get();
+            if (me == null) me = new();
+            return me;
+        endfunction
+
+        virtual function svm_component create_component(string name, svm_component parent);
+            $fatal(1, "[FACTORY] Cannot create plain object %s as a component!", Tname);
+            return null;
+        endfunction
+
+        virtual function svm_object create_object(string name);
+            T inst = new(name);
+            return inst;
+        endfunction
+
+        virtual function string get_type_name();
+            return Tname;
+        endfunction
+
+        // Магический метод для переопределения типа через type_id!
+        static function void set_type_override(svm_proxy_base override_proxy);
+            svm_factory::set_type_override(Tname, override_proxy.get_type_name());
+        endfunction
+
+        // Магический метод для объектов
+        static function T create(string name = "");
+            svm_object obj_base = svm_factory::create_object(Tname, name);
+            T obj;
+            if (!$cast(obj, obj_base)) $fatal(1, "[FACTORY] Cast failed for object %s", Tname);
+            return obj;
+        endfunction
+    endclass
+
+    
 
     // ==========================================
     // 4. МЕНЕДЖЕР ФАЗ (АНАЛОГ uvm_root)
@@ -199,7 +273,6 @@ package svm_pkg;
             seq_item_mailbox = new(1); // Буфер на 1 транзакцию
         endfunction
 
-        static svm_pkg::svm_proxy#(svm_sequencer) p = new("svm_sequencer");
     endclass
 
 

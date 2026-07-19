@@ -1,6 +1,7 @@
 `ifndef FIFO_SCOREBOARD
 `define FIFO_SCOREBOARD
 class fifo_scoreboard extends svm_component;
+    `svm_component_utils(fifo_scoreboard)
     mailbox_t mon2scb;
     
     
@@ -54,7 +55,5 @@ class fifo_scoreboard extends svm_component;
             end
         end
     endtask
-
-    static svm_pkg::svm_proxy#(fifo_scoreboard) p = new("fifo_scoreboard");
 endclass
 `endif

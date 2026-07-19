@@ -1,4 +1,5 @@
 class fifo_write_only_sequence extends svm_sequence #(fifo_transaction);
+    `svm_object_utils(fifo_write_only_sequence)
     int num_transactions = 200;
 
     function new(string name = "");

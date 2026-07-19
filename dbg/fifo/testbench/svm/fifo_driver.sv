@@ -18,9 +18,6 @@ class fifo_driver extends svm_component;
         end
     endfunction: build_phase
 
-    
-    
-    
 
     task run_phase();
         forever begin
@@ -46,6 +43,5 @@ class fifo_driver extends svm_component;
         end
     endtask
 
-    //static svm_pkg::svm_proxy#(fifo_driver) p = new("fifo_driver");
 endclass
 `endif

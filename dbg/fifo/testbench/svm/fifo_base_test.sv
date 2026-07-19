@@ -1,5 +1,6 @@
 // Базовый тест
 class fifo_base_test extends svm_test;
+    `svm_component_utils(fifo_base_test)
     fifo_environment env;
 
     function new(string name, svm_component parent);
@@ -10,7 +11,4 @@ class fifo_base_test extends svm_test;
         env = new("env", this);
     endfunction
 
-
-    // Регистрируем тест на фабрике SVM
-    static svm_pkg::svm_proxy#(fifo_base_test) p = new("fifo_base_test");
 endclass

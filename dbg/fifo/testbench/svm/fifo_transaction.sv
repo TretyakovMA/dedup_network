@@ -1,6 +1,7 @@
 `ifndef FIFO_TRANSACTION
 `define FIFO_TRANSACTION
 class fifo_transaction extends svm_object;
+    `svm_object_utils(fifo_transaction)
     rand data_t data;
     rand op_t   op;
     
