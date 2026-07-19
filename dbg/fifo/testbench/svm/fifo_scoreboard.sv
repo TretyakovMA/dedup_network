@@ -8,13 +8,16 @@ class fifo_scoreboard extends svm_component;
     fifo_ref_model#(16) ref_model;
     int error_count = 0;
 
-    function new(string name, svm_component parent, mailbox_t mon2scb);
+    function new(string name, svm_component parent);
         super.new(name, parent);
-        this.mon2scb = mon2scb;
+        
+    endfunction
+
+    function void build_phase();
         ref_model = new();
     endfunction
 
-    task run();
+    task run_phase();
         forever begin
             fifo_transaction tx;
             mon2scb.get(tx);
@@ -51,5 +54,7 @@ class fifo_scoreboard extends svm_component;
             end
         end
     endtask
+
+    static svm_pkg::svm_proxy#(fifo_scoreboard) p = new("fifo_scoreboard");
 endclass
 `endif

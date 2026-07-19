@@ -4,13 +4,12 @@ class fifo_generator extends svm_component;
     int num_transactions = 200; 
     event done;                 
 
-    function new(string name, svm_component parent, mailbox_t gen2drv);
+    function new(string name, svm_component parent);
         super.new(name, parent);
-        this.gen2drv = gen2drv;
     endfunction
 
     // ВАЖНО: Добавляем virtual
-    virtual task run();
+    virtual task run_phase();
         repeat(num_transactions) begin
             fifo_transaction tx = new("tr", this);
             assert (tx.randomize());
@@ -18,4 +17,6 @@ class fifo_generator extends svm_component;
         end
         -> done; 
     endtask
+
+    static svm_pkg::svm_proxy#(fifo_generator) p = new("fifo_generator");
 endclass

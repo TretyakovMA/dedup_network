@@ -12,51 +12,56 @@ class fifo_environment extends svm_component;
     mailbox_t gen2drv;
     mailbox_t mon2scb;
 
-    vif_t vif;
+    
 
-    function new(string name, svm_pkg::svm_component parent);
+    function new(string name, svm_component parent);
         super.new(name, parent);
-        this.vif = vif;
+        
+    endfunction
+
+
+    function void build_phase();
         gen2drv  = new(1);
         mon2scb  = new(1);
+
+        $cast(gen, svm_pkg::svm_factory::create_component("fifo_generator", "gen", this));
+        $cast(drv, svm_pkg::svm_factory::create_component("fifo_driver", "drv", this));
+        $cast(mon, svm_pkg::svm_factory::create_component("fifo_monitor", "mon", this));
+        $cast(scb, svm_pkg::svm_factory::create_component("fifo_scoreboard", "scb", this));
         
-        gen = new("gen", this, gen2drv);
-        drv = new("drv", this, gen2drv);
-        mon = new("mon", this, mon2scb);
-        scb = new("scb", this, mon2scb);
+    endfunction
+
+
+    function void connect_phase();
+        // Связываем компоненты через почтовые ящики
+        gen.gen2drv = gen2drv;
+        drv.gen2drv = gen2drv;
+        mon.mon2scb = mon2scb;
+        scb.mon2scb = mon2scb;
     endfunction
 
     // Основной таск запуска теста
-    task run();
+    task run_phase();
+        raise_objection();
         fork
-            // ПОТОК 1: Запуск и выполнение всех компонентов тестбенча
-            begin
-                fork
-                    gen.run();
-                    drv.run();
-                    mon.run();
-                    scb.run();
-                join
-            end
+            // ПОТОК 1: Интеллектуальное ожидание окончания всех воздействий
+            wait_for_end();
 
-            // ПОТОК 2: Интеллектуальное ожидание окончания всех воздействий
-            begin
-                wait_for_end();
-            end
-
-            // ПОТОК 3: Контроль таймаута (Watchdog)
-            begin
-                #10000;
-                $fatal("\033[31;1m[TIMEOUT] Time: %t Test exceeded maximum execution time limit!\033[0m", $time);
-            end
+            // ПОТОК 2: Контроль таймаута (Watchdog)
+            timeout();
         join_any
         
-        // Как только ПОТОК 2 (успешный финиш) или ПОТОК 3 (таймаут) завершатся,
-        // снимаем все остальные параллельные процессы (включая forever-циклы компонентов)
         disable fork;
 
         // Вызов финального отчета
         report_results();
+        drop_objection();
+    endtask
+
+
+    task timeout();
+        #10000;
+        $fatal("\033[31;1m[TIMEOUT] Time: %t Test exceeded maximum execution time limit!\033[0m", $time);
     endtask
 
     // Вспомогательный таск для красивого и надежного ожидания окончания теста

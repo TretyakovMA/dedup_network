@@ -4,16 +4,17 @@ class fifo_monitor extends svm_component;
     vif_t     vif;
     mailbox_t mon2scb;
 
-    function new(string name, svm_component parent, mailbox_t mon2scb);
+    function new(string name, svm_component parent);
         super.new(name, parent);
-        
-        this.mon2scb = mon2scb;
-        if (!svm_pkg::svm_config_db#(vif_t)::get("vif", this.vif)) begin
+    endfunction
+
+    function void build_phase();
+        if (!svm_config_db#(vif_t)::get("vif", this.vif)) begin
             $fatal(1, "[MON] ERROR: Virtual interface not found in svm_config_db!");
         end
     endfunction
 
-    task run();
+    task run_phase();
         forever begin
             @(vif.mon_cb);
             
@@ -38,5 +39,7 @@ class fifo_monitor extends svm_component;
             end
         end
     endtask
+
+    static svm_pkg::svm_proxy#(fifo_monitor) p = new("fifo_monitor");
 endclass
 `endif

@@ -66,14 +66,11 @@ module fifo_tb_top;
 
         svm_config_db#(virtual fifo_if #(WIDTH))::set("vif", vif);
 
-        //env = new(vif);
         initialize();
 
-        svm_factory::run_test();
+        svm_root::run_test();
         #100;
     
-        //env.run();
-        //test_factory::run_test(vif);
 
         $finish;
     end: run_test
