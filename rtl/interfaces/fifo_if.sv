@@ -25,10 +25,14 @@ interface fifo_if #(
         input w_data, w_en, full, r_data, r_en, empty;
     endclocking
 
-    modport rtl (
-        input  clk, rst_n,
-        input  w_data, w_en, r_en,
-        output full, r_data, empty
+    clocking axis_cb @(posedge clk);
+        default input #1step output #0; 
+        output r_en;
+        input  full, r_data, empty;
+    endclocking
+
+    modport axis_tb_driver (
+        clocking axis_cb
     );
     
 endinterface

@@ -15,6 +15,12 @@ module fifo_tb_top;
 
     logic clk;
     logic rst_n;
+    logic w_en;
+    logic r_en;
+    logic [WIDTH-1:0] w_data;
+    logic [WIDTH-1:0] r_data;
+    logic full;
+    logic empty;
 
     fifo_if #(WIDTH) vif(clk, rst_n);
 
@@ -27,9 +33,17 @@ module fifo_tb_top;
 
 
     fifo #(
-        .DEPTH(DEPTH)
+        .DEPTH(DEPTH),
+        .WIDTH(WIDTH)
     ) dut (
-        .io(vif.rtl)
+        .clk(vif.clk),
+        .rst_n(vif.rst_n),
+        .w_en(vif.w_en),
+        .w_data(vif.w_data),
+        .r_en(vif.r_en),
+        .r_data(vif.r_data),
+        .full(vif.full),
+        .empty(vif.empty)
     );
 
     initial begin

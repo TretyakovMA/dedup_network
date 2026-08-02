@@ -34,10 +34,8 @@ TB_TOP_PATH   := $(DBG_PATH)/testbench
 RTL_PATH      := $(PROJECT_PATH)/rtl
 TB_PKG_PATH   := $(TB_TOP_PATH)/svm
 
-TOP_MODULE    ?= fifo_tb_top
-RTL_MODULE    ?= fifo.sv
-TB_PKG        ?= fifo_pkg.sv
-
+TOP_MODULE    ?= dedup_tx_top_tb
+RTL_MODULE    ?= dedup_tx_top.sv
 
 UVM_SRC        = $(QUESTASIM_DIR)/verilog_src/uvm-1.2/src
 UVM_DPI        = $(QUESTASIM_DIR)/uvm-1.2/$(DPI_OS_DIR)/uvm_dpi
@@ -59,12 +57,19 @@ all: compile sim
 pre_compile:
 	@$(CREATE_WORK)
 
+# b=block, c=condition, e=FSM, s=statement, f=functional
 compile: pre_compile
-	# b=block, c=condition, e=FSM, s=statement, f=functional
 	vlog -sv +acc -cover bcesf +incdir+$(UVM_SRC) \
-		$(RTL_PATH)/interfaces/fifo_if.sv \
-		$(RTL_PATH)/common/$(RTL_MODULE) \
-		$(TB_PKG_PATH)/$(TB_PKG) \
+		$(RTL_PATH)/interfaces/axis_if.sv \
+		$(RTL_PATH)/interfaces/apb_if.sv \
+		$(RTL_PATH)/interfaces/apb3_intf.sv \
+		$(RTL_PATH)/pkgs/tx_regs_pkg.sv \
+		$(RTL_PATH)/common/fifo.sv \
+		$(RTL_PATH)/common/axis_input_fifo.sv \
+		$(RTL_PATH)/transmitter/tx_regs.sv \
+		$(RTL_PATH)/transmitter/tx_regs_wrapper.sv \
+		$(RTL_PATH)/transmitter/gf2_xor_hash.sv \
+		$(RTL_PATH)/transmitter/$(RTL_MODULE) \
 		$(TB_TOP_PATH)/$(TOP_MODULE).sv
 
 sim:
@@ -72,7 +77,7 @@ sim:
 		-l $(TRANSCRIPT_OUT) \
 		-cvgperinstance \
 		-wlf "$(RUN_DIR)/vsim_$(TEST_NAME)_$(ITER).wlf" \
-		-do "log -r /*; vcd file $(RUN_DIR)/vsim_$(TEST_NAME)_$(ITER).vcd; vcd add -r /*; run -all; coverage save $(RUN_DIR)/ucdb_$(TEST_NAME)_$(ITER).ucdb; quit" \
+		-do "log -r /*; vcd file $(RUN_DIR)/vsim_$(TEST_NAME)_$(ITER).vcd; vcd add -r /*; onfinish stop; run -all; coverage save $(RUN_DIR)/ucdb_$(TEST_NAME)_$(ITER).ucdb; quit" \
 		$(TOP_MODULE) \
 		-coverage \
 		-sv_seed $(SEED) \
