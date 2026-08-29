@@ -69,8 +69,10 @@ compile: pre_compile
 		$(RTL_PATH)/transmitter/tx_regs.sv \
 		$(RTL_PATH)/transmitter/tx_regs_wrapper.sv \
 		$(RTL_PATH)/transmitter/gf2_xor_hash.sv \
+		$(RTL_PATH)/transmitter/dedup_tx_controller.sv \
 		$(RTL_PATH)/transmitter/$(RTL_MODULE) \
 		$(TB_TOP_PATH)/$(TOP_MODULE).sv
+		
 
 sim:
 	vsim -c \

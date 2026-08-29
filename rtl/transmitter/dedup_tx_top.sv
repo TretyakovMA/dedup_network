@@ -24,7 +24,9 @@ module dedup_tx_top # (
     logic [DATA_WIDTH-1:0] fifo_r_data;
     logic fifo_r_en;
 
-    logic [7:0] hash1;
+    logic dict_hit;
+    logic [7:0] dict_key;
+    logic force_sync;
 
     // Входное fifo
     axis_input_fifo #(
@@ -45,13 +47,18 @@ module dedup_tx_top # (
         .hwif_out  (hwif_out)
     );
 
-    gf2_xor_hash #(
-        .DATA_WIDTH(DATA_WIDTH),
-        .HASH_WIDTH(8),
-        .SEED(32'hF00D_C0DE)
-    ) hash_1 (
-        .data_in   (fifo_r_data),
-        .hash_out  (hash1)
+    dedup_tx_controller #(
+        .DATA_WIDTH(DATA_WIDTH)
+    ) u_dedup_tx_controller (
+        .clk        (clk),
+        .rst_n      (rst_n),
+        .fifo_empty (fifo_empty),
+        .fifo_rdata (fifo_r_data),
+        .fifo_rd_en (fifo_r_en),
+        .dict_hit   (dict_hit),
+        .dict_key   (dict_key),
+        .force_sync (force_sync),
+        .m_axis     (m_axis)
     );
     
     

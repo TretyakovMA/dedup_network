@@ -30,13 +30,5 @@ interface axis_if #(
         input  tready
     );
 
-    clocking driver_cb @(posedge clk);
-        default input #1step output #0; 
-        output tdata, tvalid, tlast;
-        input  tready;
-    endclocking
-
-    modport tb_driver(
-        clocking driver_cb
-    );
+    
 endinterface

@@ -10,6 +10,9 @@ module dedup_tx_top_tb;
         CLK_PERIOD      = 20,
         RESET_TIME      = 40
     } param_e;
+    enum {
+        AXIS_OUT_DATA_WIDTH = 8
+    } axis_param_e;
 
     enum {
         APB_ADDR_WIDTH  = 8
@@ -21,10 +24,11 @@ module dedup_tx_top_tb;
 
     // Интерфейсы AXI-Stream и APB
     axis_if #(AXIS_DATA_WIDTH)                in_axis_bus(clk, rst_n);
-    axis_if #(AXIS_DATA_WIDTH)                out_axis_bus(clk, rst_n);
+    axis_if #(AXIS_OUT_DATA_WIDTH)            out_axis_bus(clk, rst_n);
     apb_if  #(APB_DATA_WIDTH, APB_ADDR_WIDTH) apb_bus(clk, rst_n);
 
-    virtual axis_if#(AXIS_DATA_WIDTH)               axis_vif = in_axis_bus.tb_driver;
+    virtual axis_if#(AXIS_DATA_WIDTH)               axis_vif = in_axis_bus;
+    virtual axis_if#(AXIS_OUT_DATA_WIDTH)           axis_mon_vif = out_axis_bus;
     virtual apb_if#(APB_DATA_WIDTH, APB_ADDR_WIDTH) apb_vif = apb_bus.tb_driver;
 
     // Экземпляр тестируемого модуля
@@ -56,7 +60,7 @@ module dedup_tx_top_tb;
 
         #(RESET_TIME);
         rst_n = 1;
-        @(axis_vif.driver_cb); 
+        @(posedge axis_vif.clk); 
     endtask
 
     task single_write_apb();
@@ -85,6 +89,20 @@ module dedup_tx_top_tb;
         @(apb_vif.driver_cb);
     endtask
 
+    task single_write_axis();
+        @(posedge axis_vif.clk); 
+        axis_vif.tvalid <= 1;
+        axis_vif.tdata  <= 32'h12345678;
+        axis_vif.tlast  <= 1;
+        axis_mon_vif.tready       <= 1;
+        @(posedge axis_vif.clk); 
+        axis_vif.tvalid <= 0;
+        axis_vif.tdata  <= 0;
+        axis_vif.tlast  <= 0;
+    endtask
+
+    
+
     task timeout();
         #10000;
         $fatal(`RED_STR("Simulation timeout reached. Test failed."));
@@ -94,7 +112,8 @@ module dedup_tx_top_tb;
         initialize();
         single_write_apb();
         single_read_apb();
-        #100;
+        single_write_axis();
+        #1000;
         $finish;
     endtask
 
