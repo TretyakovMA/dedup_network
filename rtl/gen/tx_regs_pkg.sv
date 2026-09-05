@@ -113,9 +113,14 @@ package tx_regs_pkg;
     } tx_regs__mode_reg_t__aging_disable__out_t;
 
     typedef struct {
+        logic [3:0] value;
+    } tx_regs__mode_reg_t__reserved__out_t;
+
+    typedef struct {
         tx_regs__mode_reg_t__algo_sel__out_t algo_sel;
         tx_regs__mode_reg_t__cu_disable__out_t cu_disable;
         tx_regs__mode_reg_t__aging_disable__out_t aging_disable;
+        tx_regs__mode_reg_t__reserved__out_t reserved;
     } tx_regs__mode_reg_t__out_t;
 
     typedef struct {

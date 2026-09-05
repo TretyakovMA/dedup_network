@@ -62,6 +62,12 @@ addrmap tx_regs {
             desc = "Отключение автоматического затухания/деления на 2: 1 = отключено, 0 = включено";
             sw = rw; hw = r;
         } aging_disable[3:3] = 1'b0;
+
+        field {
+            name = "RESERVED";
+            desc = "Зарезервировано для будущего использования";
+            sw = rw; hw = r;
+        } reserved[7:4] = 4'b0000;
     };
     mode_reg_t MODE_REG @ 0x01;
 

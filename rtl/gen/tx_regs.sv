@@ -5,7 +5,18 @@ module tx_regs (
         input wire clk,
         input wire rst,
 
-        apb3_intf.slave s_apb,
+        input wire s_cpuif_req,
+        input wire s_cpuif_req_is_wr,
+        input wire [5:0] s_cpuif_addr,
+        input wire [7:0] s_cpuif_wr_data,
+        input wire [7:0] s_cpuif_wr_biten,
+        output wire s_cpuif_req_stall_wr,
+        output wire s_cpuif_req_stall_rd,
+        output wire s_cpuif_rd_ack,
+        output wire s_cpuif_rd_err,
+        output wire [7:0] s_cpuif_rd_data,
+        output wire s_cpuif_wr_ack,
+        output wire s_cpuif_wr_err,
 
         input tx_regs_pkg::tx_regs__in_t hwif_in,
         output tx_regs_pkg::tx_regs__out_t hwif_out
@@ -29,47 +40,18 @@ module tx_regs (
     logic cpuif_wr_ack;
     logic cpuif_wr_err;
 
-    `ifndef SYNTHESIS
-        initial begin
-            assert_bad_addr_width: assert($bits(s_apb.PADDR) >= tx_regs_pkg::TX_REGS_MIN_ADDR_WIDTH)
-                else $error("Interface address width of %0d is too small. Shall be at least %0d bits", $bits(s_apb.PADDR), tx_regs_pkg::TX_REGS_MIN_ADDR_WIDTH);
-            assert_bad_data_width: assert($bits(s_apb.PWDATA) == tx_regs_pkg::TX_REGS_DATA_WIDTH)
-                else $error("Interface data width of %0d is incorrect. Shall be %0d bits", $bits(s_apb.PWDATA), tx_regs_pkg::TX_REGS_DATA_WIDTH);
-        end
-    `endif
-
-    // Request
-    logic is_active;
-    always_ff @(posedge clk) begin
-        if(rst) begin
-            is_active <= '0;
-            cpuif_req <= '0;
-            cpuif_req_is_wr <= '0;
-            cpuif_addr <= '0;
-            cpuif_wr_data <= '0;
-        end else begin
-            if(~is_active) begin
-                if(s_apb.PSEL) begin
-                    is_active <= '1;
-                    cpuif_req <= '1;
-                    cpuif_req_is_wr <= s_apb.PWRITE;
-                    cpuif_addr <= s_apb.PADDR[5:0];
-                    cpuif_wr_data <= s_apb.PWDATA;
-                end
-            end else begin
-                cpuif_req <= '0;
-                if(cpuif_rd_ack || cpuif_wr_ack) begin
-                    is_active <= '0;
-                end
-            end
-        end
-    end
-    assign cpuif_wr_biten = '1;
-
-    // Response
-    assign s_apb.PREADY = cpuif_rd_ack | cpuif_wr_ack;
-    assign s_apb.PRDATA = cpuif_rd_data;
-    assign s_apb.PSLVERR = cpuif_rd_err | cpuif_wr_err;
+    assign cpuif_req = s_cpuif_req;
+    assign cpuif_req_is_wr = s_cpuif_req_is_wr;
+    assign cpuif_addr = s_cpuif_addr;
+    assign cpuif_wr_data = s_cpuif_wr_data;
+    assign cpuif_wr_biten = s_cpuif_wr_biten;
+    assign s_cpuif_req_stall_wr = cpuif_req_stall_wr;
+    assign s_cpuif_req_stall_rd = cpuif_req_stall_rd;
+    assign s_cpuif_rd_ack = cpuif_rd_ack;
+    assign s_cpuif_rd_err = cpuif_rd_err;
+    assign s_cpuif_rd_data = cpuif_rd_data;
+    assign s_cpuif_wr_ack = cpuif_wr_ack;
+    assign s_cpuif_wr_err = cpuif_wr_err;
 
     logic cpuif_req_masked;
 
@@ -188,6 +170,10 @@ module tx_regs (
                 logic next;
                 logic load_next;
             } aging_disable;
+            struct {
+                logic [3:0] next;
+                logic load_next;
+            } reserved;
         } MODE_REG;
         struct {
             struct {
@@ -352,6 +338,9 @@ module tx_regs (
             struct {
                 logic value;
             } aging_disable;
+            struct {
+                logic [3:0] value;
+            } reserved;
         } MODE_REG;
         struct {
             struct {
@@ -597,6 +586,29 @@ module tx_regs (
         end
     end
     assign hwif_out.MODE_REG.aging_disable.value = field_storage.MODE_REG.aging_disable.value;
+    // Field: tx_regs.MODE_REG.reserved
+    always_comb begin
+        automatic logic [3:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.MODE_REG.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.MODE_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.MODE_REG.reserved.value & ~decoded_wr_biten[7:4]) | (decoded_wr_data[7:4] & decoded_wr_biten[7:4]);
+            load_next_c = '1;
+        end
+        field_combo.MODE_REG.reserved.next = next_c;
+        field_combo.MODE_REG.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.MODE_REG.reserved.value <= 4'h0;
+        end else begin
+            if(field_combo.MODE_REG.reserved.load_next) begin
+                field_storage.MODE_REG.reserved.value <= field_combo.MODE_REG.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.MODE_REG.reserved.value = field_storage.MODE_REG.reserved.value;
     // Field: tx_regs.AGING_PERIOD_LO.val
     always_comb begin
         automatic logic [7:0] next_c;
@@ -1261,6 +1273,7 @@ module tx_regs (
             readback_data_var[1:0] = field_storage.MODE_REG.algo_sel.value;
             readback_data_var[2] = field_storage.MODE_REG.cu_disable.value;
             readback_data_var[3] = field_storage.MODE_REG.aging_disable.value;
+            readback_data_var[7:4] = field_storage.MODE_REG.reserved.value;
         end
         if(rd_mux_addr == 6'h2) begin
             readback_data_var[7:0] = field_storage.AGING_PERIOD_LO.val.value;
