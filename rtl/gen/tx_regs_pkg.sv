@@ -4,8 +4,8 @@
 package tx_regs_pkg;
 
     localparam TX_REGS_DATA_WIDTH = 8;
-    localparam TX_REGS_MIN_ADDR_WIDTH = 6;
-    localparam TX_REGS_SIZE = 'h24;
+    localparam TX_REGS_MIN_ADDR_WIDTH = 5;
+    localparam TX_REGS_SIZE = 'h20;
 
     typedef struct {
         logic next;
@@ -95,9 +95,14 @@ package tx_regs_pkg;
     } tx_regs__ctrl_reg_t__soft_reset__out_t;
 
     typedef struct {
+        logic [4:0] value;
+    } tx_regs__ctrl_reg_t__reserved__out_t;
+
+    typedef struct {
         tx_regs__ctrl_reg_t__tx_en__out_t tx_en;
         tx_regs__ctrl_reg_t__bypass_en__out_t bypass_en;
         tx_regs__ctrl_reg_t__soft_reset__out_t soft_reset;
+        tx_regs__ctrl_reg_t__reserved__out_t reserved;
     } tx_regs__ctrl_reg_t__out_t;
 
     typedef struct {
@@ -152,9 +157,14 @@ package tx_regs_pkg;
     } tx_regs__bf_ctrl_reg_t__bf_reset__out_t;
 
     typedef struct {
+        logic [4:0] value;
+    } tx_regs__bf_ctrl_reg_t__reserved__out_t;
+
+    typedef struct {
         tx_regs__bf_ctrl_reg_t__bf_en__out_t bf_en;
         tx_regs__bf_ctrl_reg_t__force_rotate__out_t force_rotate;
         tx_regs__bf_ctrl_reg_t__bf_reset__out_t bf_reset;
+        tx_regs__bf_ctrl_reg_t__reserved__out_t reserved;
     } tx_regs__bf_ctrl_reg_t__out_t;
 
     typedef struct {
@@ -174,8 +184,13 @@ package tx_regs_pkg;
     } tx_regs__cmd_reg_t__clr_counters_cmd__out_t;
 
     typedef struct {
+        logic [5:0] value;
+    } tx_regs__cmd_reg_t__reserved__out_t;
+
+    typedef struct {
         tx_regs__cmd_reg_t__flush_dict_cmd__out_t flush_dict_cmd;
         tx_regs__cmd_reg_t__clr_counters_cmd__out_t clr_counters_cmd;
+        tx_regs__cmd_reg_t__reserved__out_t reserved;
     } tx_regs__cmd_reg_t__out_t;
 
     typedef struct {
@@ -195,10 +210,15 @@ package tx_regs_pkg;
     } tx_regs__int_enable_reg_t__high_hit_rate__out_t;
 
     typedef struct {
+        logic [3:0] value;
+    } tx_regs__int_enable_reg_t__reserved__out_t;
+
+    typedef struct {
         tx_regs__int_enable_reg_t__fifo_overflow__out_t fifo_overflow;
         tx_regs__int_enable_reg_t__fifo_underflow__out_t fifo_underflow;
         tx_regs__int_enable_reg_t__aging_event__out_t aging_event;
         tx_regs__int_enable_reg_t__high_hit_rate__out_t high_hit_rate;
+        tx_regs__int_enable_reg_t__reserved__out_t reserved;
     } tx_regs__int_enable_reg_t__out_t;
 
     typedef struct {
@@ -218,10 +238,15 @@ package tx_regs_pkg;
     } tx_regs__int_status_reg_t__high_hit_rate__out_t;
 
     typedef struct {
+        logic [3:0] value;
+    } tx_regs__int_status_reg_t__reserved__out_t;
+
+    typedef struct {
         tx_regs__int_status_reg_t__fifo_overflow__out_t fifo_overflow;
         tx_regs__int_status_reg_t__fifo_underflow__out_t fifo_underflow;
         tx_regs__int_status_reg_t__aging_event__out_t aging_event;
         tx_regs__int_status_reg_t__high_hit_rate__out_t high_hit_rate;
+        tx_regs__int_status_reg_t__reserved__out_t reserved;
     } tx_regs__int_status_reg_t__out_t;
 
     typedef struct {
@@ -237,9 +262,14 @@ package tx_regs_pkg;
     } tx_regs__crc_cfg_reg_t__block_size__out_t;
 
     typedef struct {
+        logic [1:0] value;
+    } tx_regs__crc_cfg_reg_t__reserved__out_t;
+
+    typedef struct {
         tx_regs__crc_cfg_reg_t__crc_en__out_t crc_en;
         tx_regs__crc_cfg_reg_t__crc_mode__out_t crc_mode;
         tx_regs__crc_cfg_reg_t__block_size__out_t block_size;
+        tx_regs__crc_cfg_reg_t__reserved__out_t reserved;
     } tx_regs__crc_cfg_reg_t__out_t;
 
     typedef struct {

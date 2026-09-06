@@ -7,7 +7,7 @@ module tx_regs (
 
         input wire s_cpuif_req,
         input wire s_cpuif_req_is_wr,
-        input wire [5:0] s_cpuif_addr,
+        input wire [4:0] s_cpuif_addr,
         input wire [7:0] s_cpuif_wr_data,
         input wire [7:0] s_cpuif_wr_biten,
         output wire s_cpuif_req_stall_wr,
@@ -27,7 +27,7 @@ module tx_regs (
     //--------------------------------------------------------------------------
     logic cpuif_req;
     logic cpuif_req_is_wr;
-    logic [5:0] cpuif_addr;
+    logic [4:0] cpuif_addr;
     logic [7:0] cpuif_wr_data;
     logic [7:0] cpuif_wr_biten;
     logic cpuif_req_stall_wr;
@@ -86,7 +86,7 @@ module tx_regs (
     } decoded_reg_strb_t;
     decoded_reg_strb_t decoded_reg_strb;
     logic decoded_err;
-    logic [5:0] decoded_addr;
+    logic [4:0] decoded_addr;
     logic decoded_req;
     logic decoded_req_is_wr;
     logic [7:0] decoded_wr_data;
@@ -97,38 +97,38 @@ module tx_regs (
         automatic logic is_valid_rw;
         is_valid_addr = '1; // No valid address check
         is_valid_rw = '1; // No valid RW check
-        decoded_reg_strb.CTRL_REG = cpuif_req_masked & (cpuif_addr == 6'h0);
-        decoded_reg_strb.MODE_REG = cpuif_req_masked & (cpuif_addr == 6'h1);
-        decoded_reg_strb.AGING_PERIOD_LO = cpuif_req_masked & (cpuif_addr == 6'h2);
-        decoded_reg_strb.AGING_PERIOD_HI = cpuif_req_masked & (cpuif_addr == 6'h3);
-        decoded_reg_strb.BF_CTRL_REG = cpuif_req_masked & (cpuif_addr == 6'h4);
-        decoded_reg_strb.SLRU_CFG_REG = cpuif_req_masked & (cpuif_addr == 6'h5);
-        decoded_reg_strb.CMD_REG = cpuif_req_masked & (cpuif_addr == 6'h7) & cpuif_req_is_wr;
-        decoded_reg_strb.STATUS_REG = cpuif_req_masked & (cpuif_addr == 6'h8) & !cpuif_req_is_wr;
-        decoded_reg_strb.INT_ENABLE_REG = cpuif_req_masked & (cpuif_addr == 6'h9);
-        decoded_reg_strb.INT_STATUS_REG = cpuif_req_masked & (cpuif_addr == 6'ha);
-        decoded_reg_strb.CRC_CFG_REG = cpuif_req_masked & (cpuif_addr == 6'hb);
-        decoded_reg_strb.HIT_RATE_THRESH_REG = cpuif_req_masked & (cpuif_addr == 6'hc);
-        decoded_reg_strb.CNT_TOTAL_WORDS[0] = cpuif_req_masked & (cpuif_addr == 6'h10) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_TOTAL_WORDS[1] = cpuif_req_masked & (cpuif_addr == 6'h11) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_TOTAL_WORDS[2] = cpuif_req_masked & (cpuif_addr == 6'h12) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_TOTAL_WORDS[3] = cpuif_req_masked & (cpuif_addr == 6'h13) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_KEY_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h14) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_KEY_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h15) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_KEY_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h16) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_KEY_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h17) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_RAW_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h18) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_RAW_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h19) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_RAW_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h1a) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_RAW_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h1b) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_SYNC_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h1c) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_SYNC_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h1d) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_SYNC_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h1e) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_SYNC_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h1f) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_BF_FILTERED[0] = cpuif_req_masked & (cpuif_addr == 6'h20) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_BF_FILTERED[1] = cpuif_req_masked & (cpuif_addr == 6'h21) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_BF_FILTERED[2] = cpuif_req_masked & (cpuif_addr == 6'h22) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_BF_FILTERED[3] = cpuif_req_masked & (cpuif_addr == 6'h23) & !cpuif_req_is_wr;
+        decoded_reg_strb.CTRL_REG = cpuif_req_masked & (cpuif_addr == 5'h0);
+        decoded_reg_strb.MODE_REG = cpuif_req_masked & (cpuif_addr == 5'h1);
+        decoded_reg_strb.AGING_PERIOD_LO = cpuif_req_masked & (cpuif_addr == 5'h2);
+        decoded_reg_strb.AGING_PERIOD_HI = cpuif_req_masked & (cpuif_addr == 5'h3);
+        decoded_reg_strb.BF_CTRL_REG = cpuif_req_masked & (cpuif_addr == 5'h4);
+        decoded_reg_strb.SLRU_CFG_REG = cpuif_req_masked & (cpuif_addr == 5'h5);
+        decoded_reg_strb.CMD_REG = cpuif_req_masked & (cpuif_addr == 5'h6);
+        decoded_reg_strb.STATUS_REG = cpuif_req_masked & (cpuif_addr == 5'h7) & !cpuif_req_is_wr;
+        decoded_reg_strb.INT_ENABLE_REG = cpuif_req_masked & (cpuif_addr == 5'h8);
+        decoded_reg_strb.INT_STATUS_REG = cpuif_req_masked & (cpuif_addr == 5'h9);
+        decoded_reg_strb.CRC_CFG_REG = cpuif_req_masked & (cpuif_addr == 5'ha);
+        decoded_reg_strb.HIT_RATE_THRESH_REG = cpuif_req_masked & (cpuif_addr == 5'hb);
+        decoded_reg_strb.CNT_TOTAL_WORDS[0] = cpuif_req_masked & (cpuif_addr == 5'hc) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_TOTAL_WORDS[1] = cpuif_req_masked & (cpuif_addr == 5'hd) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_TOTAL_WORDS[2] = cpuif_req_masked & (cpuif_addr == 5'he) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_TOTAL_WORDS[3] = cpuif_req_masked & (cpuif_addr == 5'hf) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_KEY_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 5'h10) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_KEY_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 5'h11) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_KEY_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 5'h12) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_KEY_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 5'h13) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_RAW_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 5'h14) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_RAW_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 5'h15) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_RAW_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 5'h16) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_RAW_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 5'h17) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_SYNC_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 5'h18) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_SYNC_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 5'h19) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_SYNC_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 5'h1a) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_SYNC_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 5'h1b) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_BF_FILTERED[0] = cpuif_req_masked & (cpuif_addr == 5'h1c) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_BF_FILTERED[1] = cpuif_req_masked & (cpuif_addr == 5'h1d) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_BF_FILTERED[2] = cpuif_req_masked & (cpuif_addr == 5'h1e) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_BF_FILTERED[3] = cpuif_req_masked & (cpuif_addr == 5'h1f) & !cpuif_req_is_wr;
         decoded_err = '0;
     end
 
@@ -156,6 +156,10 @@ module tx_regs (
                 logic next;
                 logic load_next;
             } soft_reset;
+            struct {
+                logic [4:0] next;
+                logic load_next;
+            } reserved;
         } CTRL_REG;
         struct {
             struct {
@@ -200,6 +204,10 @@ module tx_regs (
                 logic next;
                 logic load_next;
             } bf_reset;
+            struct {
+                logic [4:0] next;
+                logic load_next;
+            } reserved;
         } BF_CTRL_REG;
         struct {
             struct {
@@ -216,6 +224,10 @@ module tx_regs (
                 logic next;
                 logic load_next;
             } clr_counters_cmd;
+            struct {
+                logic [5:0] next;
+                logic load_next;
+            } reserved;
         } CMD_REG;
         struct {
             struct {
@@ -234,6 +246,10 @@ module tx_regs (
                 logic next;
                 logic load_next;
             } high_hit_rate;
+            struct {
+                logic [3:0] next;
+                logic load_next;
+            } reserved;
         } INT_ENABLE_REG;
         struct {
             struct {
@@ -252,6 +268,10 @@ module tx_regs (
                 logic next;
                 logic load_next;
             } high_hit_rate;
+            struct {
+                logic [3:0] next;
+                logic load_next;
+            } reserved;
         } INT_STATUS_REG;
         struct {
             struct {
@@ -266,6 +286,10 @@ module tx_regs (
                 logic [2:0] next;
                 logic load_next;
             } block_size;
+            struct {
+                logic [1:0] next;
+                logic load_next;
+            } reserved;
         } CRC_CFG_REG;
         struct {
             struct {
@@ -327,6 +351,9 @@ module tx_regs (
             struct {
                 logic value;
             } soft_reset;
+            struct {
+                logic [4:0] value;
+            } reserved;
         } CTRL_REG;
         struct {
             struct {
@@ -362,6 +389,9 @@ module tx_regs (
             struct {
                 logic value;
             } bf_reset;
+            struct {
+                logic [4:0] value;
+            } reserved;
         } BF_CTRL_REG;
         struct {
             struct {
@@ -375,6 +405,9 @@ module tx_regs (
             struct {
                 logic value;
             } clr_counters_cmd;
+            struct {
+                logic [5:0] value;
+            } reserved;
         } CMD_REG;
         struct {
             struct {
@@ -389,6 +422,9 @@ module tx_regs (
             struct {
                 logic value;
             } high_hit_rate;
+            struct {
+                logic [3:0] value;
+            } reserved;
         } INT_ENABLE_REG;
         struct {
             struct {
@@ -403,6 +439,9 @@ module tx_regs (
             struct {
                 logic value;
             } high_hit_rate;
+            struct {
+                logic [3:0] value;
+            } reserved;
         } INT_STATUS_REG;
         struct {
             struct {
@@ -414,6 +453,9 @@ module tx_regs (
             struct {
                 logic [2:0] value;
             } block_size;
+            struct {
+                logic [1:0] value;
+            } reserved;
         } CRC_CFG_REG;
         struct {
             struct {
@@ -517,6 +559,29 @@ module tx_regs (
         end
     end
     assign hwif_out.CTRL_REG.soft_reset.value = field_storage.CTRL_REG.soft_reset.value;
+    // Field: tx_regs.CTRL_REG.reserved
+    always_comb begin
+        automatic logic [4:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.CTRL_REG.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.CTRL_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.CTRL_REG.reserved.value & ~decoded_wr_biten[7:3]) | (decoded_wr_data[7:3] & decoded_wr_biten[7:3]);
+            load_next_c = '1;
+        end
+        field_combo.CTRL_REG.reserved.next = next_c;
+        field_combo.CTRL_REG.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.CTRL_REG.reserved.value <= 5'h0;
+        end else begin
+            if(field_combo.CTRL_REG.reserved.load_next) begin
+                field_storage.CTRL_REG.reserved.value <= field_combo.CTRL_REG.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.CTRL_REG.reserved.value = field_storage.CTRL_REG.reserved.value;
     // Field: tx_regs.MODE_REG.algo_sel
     always_comb begin
         automatic logic [1:0] next_c;
@@ -730,6 +795,29 @@ module tx_regs (
         end
     end
     assign hwif_out.BF_CTRL_REG.bf_reset.value = field_storage.BF_CTRL_REG.bf_reset.value;
+    // Field: tx_regs.BF_CTRL_REG.reserved
+    always_comb begin
+        automatic logic [4:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.BF_CTRL_REG.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.BF_CTRL_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.BF_CTRL_REG.reserved.value & ~decoded_wr_biten[7:3]) | (decoded_wr_data[7:3] & decoded_wr_biten[7:3]);
+            load_next_c = '1;
+        end
+        field_combo.BF_CTRL_REG.reserved.next = next_c;
+        field_combo.BF_CTRL_REG.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.BF_CTRL_REG.reserved.value <= 5'h0;
+        end else begin
+            if(field_combo.BF_CTRL_REG.reserved.load_next) begin
+                field_storage.BF_CTRL_REG.reserved.value <= field_combo.BF_CTRL_REG.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.BF_CTRL_REG.reserved.value = field_storage.BF_CTRL_REG.reserved.value;
     // Field: tx_regs.SLRU_CFG_REG.slru_thresh
     always_comb begin
         automatic logic [7:0] next_c;
@@ -805,6 +893,29 @@ module tx_regs (
         end
     end
     assign hwif_out.CMD_REG.clr_counters_cmd.value = field_storage.CMD_REG.clr_counters_cmd.value;
+    // Field: tx_regs.CMD_REG.reserved
+    always_comb begin
+        automatic logic [5:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.CMD_REG.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.CMD_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.CMD_REG.reserved.value & ~decoded_wr_biten[7:2]) | (decoded_wr_data[7:2] & decoded_wr_biten[7:2]);
+            load_next_c = '1;
+        end
+        field_combo.CMD_REG.reserved.next = next_c;
+        field_combo.CMD_REG.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.CMD_REG.reserved.value <= 6'h0;
+        end else begin
+            if(field_combo.CMD_REG.reserved.load_next) begin
+                field_storage.CMD_REG.reserved.value <= field_combo.CMD_REG.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.CMD_REG.reserved.value = field_storage.CMD_REG.reserved.value;
     // Field: tx_regs.INT_ENABLE_REG.fifo_overflow
     always_comb begin
         automatic logic [0:0] next_c;
@@ -897,6 +1008,29 @@ module tx_regs (
         end
     end
     assign hwif_out.INT_ENABLE_REG.high_hit_rate.value = field_storage.INT_ENABLE_REG.high_hit_rate.value;
+    // Field: tx_regs.INT_ENABLE_REG.reserved
+    always_comb begin
+        automatic logic [3:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.INT_ENABLE_REG.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.INT_ENABLE_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.INT_ENABLE_REG.reserved.value & ~decoded_wr_biten[7:4]) | (decoded_wr_data[7:4] & decoded_wr_biten[7:4]);
+            load_next_c = '1;
+        end
+        field_combo.INT_ENABLE_REG.reserved.next = next_c;
+        field_combo.INT_ENABLE_REG.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.INT_ENABLE_REG.reserved.value <= 4'h0;
+        end else begin
+            if(field_combo.INT_ENABLE_REG.reserved.load_next) begin
+                field_storage.INT_ENABLE_REG.reserved.value <= field_combo.INT_ENABLE_REG.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.INT_ENABLE_REG.reserved.value = field_storage.INT_ENABLE_REG.reserved.value;
     // Field: tx_regs.INT_STATUS_REG.fifo_overflow
     always_comb begin
         automatic logic [0:0] next_c;
@@ -1001,6 +1135,29 @@ module tx_regs (
         end
     end
     assign hwif_out.INT_STATUS_REG.high_hit_rate.value = field_storage.INT_STATUS_REG.high_hit_rate.value;
+    // Field: tx_regs.INT_STATUS_REG.reserved
+    always_comb begin
+        automatic logic [3:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.INT_STATUS_REG.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.INT_STATUS_REG.reserved.value & ~decoded_wr_biten[7:4]) | (decoded_wr_data[7:4] & decoded_wr_biten[7:4]);
+            load_next_c = '1;
+        end
+        field_combo.INT_STATUS_REG.reserved.next = next_c;
+        field_combo.INT_STATUS_REG.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.INT_STATUS_REG.reserved.value <= 4'h0;
+        end else begin
+            if(field_combo.INT_STATUS_REG.reserved.load_next) begin
+                field_storage.INT_STATUS_REG.reserved.value <= field_combo.INT_STATUS_REG.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.INT_STATUS_REG.reserved.value = field_storage.INT_STATUS_REG.reserved.value;
     // Field: tx_regs.CRC_CFG_REG.crc_en
     always_comb begin
         automatic logic [0:0] next_c;
@@ -1070,6 +1227,29 @@ module tx_regs (
         end
     end
     assign hwif_out.CRC_CFG_REG.block_size.value = field_storage.CRC_CFG_REG.block_size.value;
+    // Field: tx_regs.CRC_CFG_REG.reserved
+    always_comb begin
+        automatic logic [1:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.CRC_CFG_REG.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.CRC_CFG_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.CRC_CFG_REG.reserved.value & ~decoded_wr_biten[7:6]) | (decoded_wr_data[7:6] & decoded_wr_biten[7:6]);
+            load_next_c = '1;
+        end
+        field_combo.CRC_CFG_REG.reserved.next = next_c;
+        field_combo.CRC_CFG_REG.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.CRC_CFG_REG.reserved.value <= 2'h0;
+        end else begin
+            if(field_combo.CRC_CFG_REG.reserved.load_next) begin
+                field_storage.CRC_CFG_REG.reserved.value <= field_combo.CRC_CFG_REG.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.CRC_CFG_REG.reserved.value = field_storage.CRC_CFG_REG.reserved.value;
     // Field: tx_regs.HIT_RATE_THRESH_REG.thresh_val
     always_comb begin
         automatic logic [7:0] next_c;
@@ -1255,7 +1435,7 @@ module tx_regs (
     // Readback
     //--------------------------------------------------------------------------
 
-    logic [5:0] rd_mux_addr;
+    logic [4:0] rd_mux_addr;
     assign rd_mux_addr = decoded_addr;
 
     logic readback_err;
@@ -1264,30 +1444,35 @@ module tx_regs (
     always_comb begin
         automatic logic [7:0] readback_data_var;
         readback_data_var = '0;
-        if(rd_mux_addr == 6'h0) begin
+        if(rd_mux_addr == 5'h0) begin
             readback_data_var[0] = field_storage.CTRL_REG.tx_en.value;
             readback_data_var[1] = field_storage.CTRL_REG.bypass_en.value;
             readback_data_var[2] = field_storage.CTRL_REG.soft_reset.value;
+            readback_data_var[7:3] = field_storage.CTRL_REG.reserved.value;
         end
-        if(rd_mux_addr == 6'h1) begin
+        if(rd_mux_addr == 5'h1) begin
             readback_data_var[1:0] = field_storage.MODE_REG.algo_sel.value;
             readback_data_var[2] = field_storage.MODE_REG.cu_disable.value;
             readback_data_var[3] = field_storage.MODE_REG.aging_disable.value;
             readback_data_var[7:4] = field_storage.MODE_REG.reserved.value;
         end
-        if(rd_mux_addr == 6'h2) begin
+        if(rd_mux_addr == 5'h2) begin
             readback_data_var[7:0] = field_storage.AGING_PERIOD_LO.val.value;
         end
-        if(rd_mux_addr == 6'h3) begin
+        if(rd_mux_addr == 5'h3) begin
             readback_data_var[7:0] = field_storage.AGING_PERIOD_HI.val.value;
         end
-        if(rd_mux_addr == 6'h4) begin
+        if(rd_mux_addr == 5'h4) begin
             readback_data_var[0] = field_storage.BF_CTRL_REG.bf_en.value;
+            readback_data_var[7:3] = field_storage.BF_CTRL_REG.reserved.value;
         end
-        if(rd_mux_addr == 6'h5) begin
+        if(rd_mux_addr == 5'h5) begin
             readback_data_var[7:0] = field_storage.SLRU_CFG_REG.slru_thresh.value;
         end
-        if(rd_mux_addr == 6'h8) begin
+        if(rd_mux_addr == 5'h6) begin
+            readback_data_var[7:2] = field_storage.CMD_REG.reserved.value;
+        end
+        if(rd_mux_addr == 5'h7) begin
             readback_data_var[0] = hwif_in.STATUS_REG.in_fifo_empty.next;
             readback_data_var[1] = hwif_in.STATUS_REG.in_fifo_full.next;
             readback_data_var[2] = hwif_in.STATUS_REG.config_pending.next;
@@ -1295,84 +1480,87 @@ module tx_regs (
             readback_data_var[4] = hwif_in.STATUS_REG.reset_busy.next;
             readback_data_var[7:5] = hwif_in.STATUS_REG.fsm_state.next;
         end
-        if(rd_mux_addr == 6'h9) begin
+        if(rd_mux_addr == 5'h8) begin
             readback_data_var[0] = field_storage.INT_ENABLE_REG.fifo_overflow.value;
             readback_data_var[1] = field_storage.INT_ENABLE_REG.fifo_underflow.value;
             readback_data_var[2] = field_storage.INT_ENABLE_REG.aging_event.value;
             readback_data_var[3] = field_storage.INT_ENABLE_REG.high_hit_rate.value;
+            readback_data_var[7:4] = field_storage.INT_ENABLE_REG.reserved.value;
         end
-        if(rd_mux_addr == 6'ha) begin
+        if(rd_mux_addr == 5'h9) begin
             readback_data_var[0] = field_storage.INT_STATUS_REG.fifo_overflow.value;
             readback_data_var[1] = field_storage.INT_STATUS_REG.fifo_underflow.value;
             readback_data_var[2] = field_storage.INT_STATUS_REG.aging_event.value;
             readback_data_var[3] = field_storage.INT_STATUS_REG.high_hit_rate.value;
+            readback_data_var[7:4] = field_storage.INT_STATUS_REG.reserved.value;
         end
-        if(rd_mux_addr == 6'hb) begin
+        if(rd_mux_addr == 5'ha) begin
             readback_data_var[0] = field_storage.CRC_CFG_REG.crc_en.value;
             readback_data_var[2:1] = field_storage.CRC_CFG_REG.crc_mode.value;
             readback_data_var[5:3] = field_storage.CRC_CFG_REG.block_size.value;
+            readback_data_var[7:6] = field_storage.CRC_CFG_REG.reserved.value;
         end
-        if(rd_mux_addr == 6'hc) begin
+        if(rd_mux_addr == 5'hb) begin
             readback_data_var[7:0] = field_storage.HIT_RATE_THRESH_REG.thresh_val.value;
         end
-        if(rd_mux_addr == 6'h10) begin
+        if(rd_mux_addr == 5'hc) begin
             readback_data_var[7:0] = field_storage.CNT_TOTAL_WORDS.val.value[7:0];
         end
-        if(rd_mux_addr == 6'h11) begin
+        if(rd_mux_addr == 5'hd) begin
             readback_data_var[7:0] = field_storage.CNT_TOTAL_WORDS.val.value[15:8];
         end
-        if(rd_mux_addr == 6'h12) begin
+        if(rd_mux_addr == 5'he) begin
             readback_data_var[7:0] = field_storage.CNT_TOTAL_WORDS.val.value[23:16];
         end
-        if(rd_mux_addr == 6'h13) begin
+        if(rd_mux_addr == 5'hf) begin
             readback_data_var[7:0] = field_storage.CNT_TOTAL_WORDS.val.value[31:24];
         end
-        if(rd_mux_addr == 6'h14) begin
+        if(rd_mux_addr == 5'h10) begin
             readback_data_var[7:0] = field_storage.CNT_KEY_FRAMES.val.value[7:0];
         end
-        if(rd_mux_addr == 6'h15) begin
+        if(rd_mux_addr == 5'h11) begin
             readback_data_var[7:0] = field_storage.CNT_KEY_FRAMES.val.value[15:8];
         end
-        if(rd_mux_addr == 6'h16) begin
+        if(rd_mux_addr == 5'h12) begin
             readback_data_var[7:0] = field_storage.CNT_KEY_FRAMES.val.value[23:16];
         end
-        if(rd_mux_addr == 6'h17) begin
+        if(rd_mux_addr == 5'h13) begin
             readback_data_var[7:0] = field_storage.CNT_KEY_FRAMES.val.value[31:24];
         end
-        if(rd_mux_addr == 6'h18) begin
+        if(rd_mux_addr == 5'h14) begin
             readback_data_var[7:0] = field_storage.CNT_RAW_FRAMES.val.value[7:0];
         end
-        if(rd_mux_addr == 6'h19) begin
+        if(rd_mux_addr == 5'h15) begin
             readback_data_var[7:0] = field_storage.CNT_RAW_FRAMES.val.value[15:8];
         end
-        if(rd_mux_addr == 6'h1a) begin
+        if(rd_mux_addr == 5'h16) begin
             readback_data_var[7:0] = field_storage.CNT_RAW_FRAMES.val.value[23:16];
         end
-        if(rd_mux_addr == 6'h1b) begin
+        if(rd_mux_addr == 5'h17) begin
             readback_data_var[7:0] = field_storage.CNT_RAW_FRAMES.val.value[31:24];
         end
-        if(rd_mux_addr == 6'h1c) begin
+        if(rd_mux_addr == 5'h18) begin
             readback_data_var[7:0] = field_storage.CNT_SYNC_FRAMES.val.value[7:0];
         end
-        if(rd_mux_addr == 6'h1d) begin
+        if(rd_mux_addr == 5'h19) begin
             readback_data_var[7:0] = field_storage.CNT_SYNC_FRAMES.val.value[15:8];
         end
-        if(rd_mux_addr == 6'h1e) begin
+        if(rd_mux_addr == 5'h1a) begin
             readback_data_var[7:0] = field_storage.CNT_SYNC_FRAMES.val.value[23:16];
         end
-        if(rd_mux_addr == 6'h1f) begin
+        if(rd_mux_addr == 5'h1b) begin
             readback_data_var[7:0] = field_storage.CNT_SYNC_FRAMES.val.value[31:24];
         end
-        if(rd_mux_addr == 6'h20) begin
+        if(rd_mux_addr == 5'h1c) begin
             readback_data_var[7:0] = field_storage.CNT_BF_FILTERED.val.value[7:0];
         end
-        if(rd_mux_addr == 6'h21) begin
+        if(rd_mux_addr == 5'h1d) begin
             readback_data_var[7:0] = field_storage.CNT_BF_FILTERED.val.value[15:8];
         end
-        if(rd_mux_addr == 6'h22) begin
+        if(rd_mux_addr == 5'h1e) begin
             readback_data_var[7:0] = field_storage.CNT_BF_FILTERED.val.value[23:16];
         end
-        if(rd_mux_addr == 6'h23) begin
+        if(rd_mux_addr == 5'h1f) begin
             readback_data_var[7:0] = field_storage.CNT_BF_FILTERED.val.value[31:24];
         end
         readback_data = readback_data_var;

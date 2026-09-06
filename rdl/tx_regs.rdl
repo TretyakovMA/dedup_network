@@ -1,14 +1,14 @@
 /*
 * Deduplicator TX Register Map (SystemRDL 2.0 Specification)
-* Module: DEDUPLICATOR_TX
-* CPU Interface: APB3 (8-bit Data Bus, Byte Addressing)
+* Module: dedup_tx_top
+* CPU Interface: SPI (8-bit, Byte Addressing)
 */
 
 addrmap tx_regs {
-    name = "DEDUPLICATOR_TX Registers";
-    desc = "Карта регистров передатчика дедуплицированного трафика с поддержкой APB3";
+    name = "dedup_tx_top Registers";
+    desc = "Карта регистров передатчика";
 
-    default regwidth = 8;
+    default regwidth    = 8;
     default accesswidth = 8;
 
     /* -------------------------------------------------------------------------
@@ -19,22 +19,36 @@ addrmap tx_regs {
         desc = "Глобальное управление передатчиком";
 
         field {
-            name = "TX_EN";
-            desc = "Включение передатчика: 1 = активен, 0 = заблокирован";
-            sw = rw; hw = r;
-        } tx_en[0:0] = 1'b0;
+            name  = "TX_EN";
+            desc  = "Включение передатчика: 1 = активен, 0 = заблокирован";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } tx_en[0:0];
 
         field {
-            name = "BYPASS_EN";
-            desc = "Режим сквозной передачи без дедупликации: 1 = включен, 0 = выключен";
-            sw = rw; hw = r;
-        } bypass_en[1:1] = 1'b0;
+            name  = "BYPASS_EN";
+            desc  = "Режим сквозной передачи без дедупликации: 1 = включен, 0 = выключен";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } bypass_en[1:1];
 
         field {
-            name = "SOFT_RESET";
-            desc = "Программный сброс FSM и FIFO передатчика";
-            sw = rw; hw = r;
-        } soft_reset[2:2] = 1'b0;
+            name  = "SOFT_RESET";
+            desc  = "Программный сброс FSM и FIFO передатчика";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } soft_reset[2:2];
+
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw; 
+            hw    = r;
+            reset = 5'b00000;
+        } reserved[7:3];
     };
     ctrl_reg_t CTRL_REG @ 0x00;
 
@@ -46,28 +60,36 @@ addrmap tx_regs {
         desc = "Выбор алгоритма дедупликации и параметры учета";
 
         field {
-            name = "ALGO_SEL";
-            desc = "Алгоритм: 00 = TinyLFU+CU-CMS, 01 = SLRU, 10 = Clock/CAR, 11 = Pure LFU";
-            sw = rw; hw = r;
-        } algo_sel[1:0] = 2'b00;
+            name  = "ALGO_SEL";
+            desc  = "Алгоритм: 00 = TinyLFU+CU-CMS, 01 = SLRU, 10 = Clock/CAR, 11 = Pure LFU";
+            sw    = rw; 
+            hw    = r;
+            reset = 2'b00;
+        } algo_sel[1:0];
 
         field {
-            name = "CU_DISABLE";
-            desc = "Отключение Conservative Update: 1 = стандартный CMS, 0 = CU включен";
-            sw = rw; hw = r;
-        } cu_disable[2:2] = 1'b0;
+            name  = "CU_DISABLE";
+            desc  = "Отключение Conservative Update: 1 = стандартный CMS, 0 = CU включен";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } cu_disable[2:2];
 
         field {
-            name = "AGING_DISABLE";
-            desc = "Отключение автоматического затухания/деления на 2: 1 = отключено, 0 = включено";
-            sw = rw; hw = r;
-        } aging_disable[3:3] = 1'b0;
+            name  = "AGING_DISABLE";
+            desc  = "Отключение автоматического затухания/деления на 2: 1 = отключено, 0 = включено";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } aging_disable[3:3];
 
         field {
-            name = "RESERVED";
-            desc = "Зарезервировано для будущего использования";
-            sw = rw; hw = r;
-        } reserved[7:4] = 4'b0000;
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw; 
+            hw    = r;
+            reset = 4'b0000;
+        } reserved[7:4];
     };
     mode_reg_t MODE_REG @ 0x01;
 
@@ -79,10 +101,12 @@ addrmap tx_regs {
         desc = "Младший байт периода затухания N (по умолчанию 1024 / 0x0400)";
 
         field {
-            name = "VAL";
-            desc = "Значение периода bits [7:0]";
-            sw = rw; hw = r;
-        } val[7:0] = 8'h00;
+            name  = "VAL";
+            desc  = "Значение периода bits [7:0]";
+            sw    = rw; 
+            hw    = r;
+            reset = 8'h00;
+        } val[7:0];
     };
     aging_period_lo_t AGING_PERIOD_LO @ 0x02;
 
@@ -94,10 +118,12 @@ addrmap tx_regs {
         desc = "Старший байт периода затухания N (по умолчанию 1024 / 0x0400)";
 
         field {
-            name = "VAL";
-            desc = "Значение периода bits [15:8]";
-            sw = rw; hw = r;
-        } val[7:0] = 8'h04;
+            name  = "VAL";
+            desc  = "Значение периода bits [15:8]";
+            sw    = rw; 
+            hw    = r;
+            reset = 8'h04;
+        } val[7:0];
     };
     aging_period_hi_t AGING_PERIOD_HI @ 0x03;
 
@@ -109,22 +135,38 @@ addrmap tx_regs {
         desc = "Управление фильтрами Блума и стробы очистки/ротации";
 
         field {
-            name = "BF_EN";
-            desc = "Включение фильтрации Блума: 1 = включено, 0 = выключено";
-            sw = rw; hw = r;
-        } bf_en[0:0] = 1'b1;
+            name  = "BF_EN";
+            desc  = "Включение фильтрации Блума: 1 = включено, 0 = выключено";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b1;
+        } bf_en[0:0];
 
         field {
-            name = "FORCE_ROTATE";
-            desc = "Принудительная ротация фильтров Блума (самосбрасываемый строб)";
-            sw = w; hw = r; singlepulse;
-        } force_rotate[1:1] = 1'b0;
+            name  = "FORCE_ROTATE";
+            desc  = "Принудительная ротация фильтров Блума (самосбрасываемый строб)";
+            sw    = w; 
+            hw    = r; 
+            reset = 1'b0;
+            singlepulse;
+        } force_rotate[1:1];
 
         field {
-            name = "BF_RESET";
-            desc = "Полная очистка обоих фильтров Блума (самосбрасываемый строб)";
-            sw = w; hw = r; singlepulse;
-        } bf_reset[2:2] = 1'b0;
+            name  = "BF_RESET";
+            desc  = "Полная очистка обоих фильтров Блума (самосбрасываемый строб)";
+            sw    = w; 
+            hw    = r; 
+            reset = 1'b0;
+            singlepulse;
+        } bf_reset[2:2];
+
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw; 
+            hw    = r;
+            reset = 5'b00000;
+        } reserved[7:3];
     };
     bf_ctrl_reg_t BF_CTRL_REG @ 0x04;
 
@@ -136,190 +178,266 @@ addrmap tx_regs {
         desc = "Порог деления словаря SLRU (Probationary vs Protected)";
 
         field {
-            name = "SLRU_THRESH";
-            desc = "Граница разделения сегментов (по умолчанию 0x40 = 64 ячейки)";
-            sw = rw; hw = r;
-        } slru_thresh[7:0] = 8'h40;
+            name  = "SLRU_THRESH";
+            desc  = "Граница разделения сегментов (по умолчанию 0x40 = 64 ячейки)";
+            sw    = rw; 
+            hw    = r;
+            reset = 8'h40;
+        } slru_thresh[7:0];
     };
     slru_cfg_reg_t SLRU_CFG_REG @ 0x05;
 
     /* -------------------------------------------------------------------------
-     * 0x07 - CMD_REG (Command Register) - Strobes
+     * 0x06 - CMD_REG (Command Register) - Strobes
      * ------------------------------------------------------------------------- */
     reg cmd_reg_t {
         name = "Command Register";
         desc = "Стробы команд управления (WO Strobes, Auto-Clearing)";
 
         field {
-            name = "FLUSH_DICT_CMD";
-            desc = "Запрос синхронного сброса словарей (отправка 0xE4 по шине)";
-            sw = w; hw = r; singlepulse;
-        } flush_dict_cmd[0:0] = 1'b0;
+            name  = "FLUSH_DICT_CMD";
+            desc  = "Запрос синхронного сброса словарей (отправка 0xE4 по шине)";
+            sw    = w; 
+            hw    = r; 
+            reset = 1'b0;
+            singlepulse;
+        } flush_dict_cmd[0:0];
 
         field {
-            name = "CLR_COUNTERS_CMD";
-            desc = "Однотактный импульс сброса всех счетчиков";
-            sw = w; hw = r; singlepulse;
-        } clr_counters_cmd[1:1] = 1'b0;
+            name  = "CLR_COUNTERS_CMD";
+            desc  = "Однотактный импульс сброса всех счетчиков";
+            sw    = w; 
+            hw    = r; 
+            reset = 1'b0;
+            singlepulse;
+        } clr_counters_cmd[1:1];
+
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw; 
+            hw    = r;
+            reset = 6'b00000;
+        } reserved[7:2];
     };
-    cmd_reg_t CMD_REG @ 0x07;
+    cmd_reg_t CMD_REG @ 0x06;
 
     /* -------------------------------------------------------------------------
-     * 0x08 - STATUS_REG (Status Register) - Read Only
+     * 0x07 - STATUS_REG (Status Register) - Read Only
      * ------------------------------------------------------------------------- */
     reg status_reg_t {
         name = "Status Register";
         desc = "Флаги состояния FIFO и FSM передатчика";
 
         field {
-            name = "IN_FIFO_EMPTY";
-            desc = "Входное FIFO пусто";
-            sw = r; hw = w;
-        } in_fifo_empty[0:0] = 1'b0;
+            name  = "IN_FIFO_EMPTY";
+            desc  = "Входное FIFO пусто";
+            sw    = r; 
+            hw    = w;
+            reset = 1'b0;
+        } in_fifo_empty[0:0];
 
         field {
-            name = "IN_FIFO_FULL";
-            desc = "Входное FIFO переполнено";
-            sw = r; hw = w;
-        } in_fifo_full[1:1] = 1'b0;
+            name  = "IN_FIFO_FULL";
+            desc  = "Входное FIFO переполнено";
+            sw    = r; 
+            hw    = w;
+            reset = 1'b0;
+        } in_fifo_full[1:1];
 
         field {
-            name = "CONFIG_PENDING";
-            desc = "Наличие несинхронизированной конфигурации в STAGED_REG";
-            sw = r; hw = w;
-        } config_pending[2:2] = 1'b0;
+            name  = "CONFIG_PENDING";
+            desc  = "Наличие несинхронизированной конфигурации в STAGED_REG";
+            sw    = r; 
+            hw    = w;
+            reset = 1'b0;
+        } config_pending[2:2];
 
         field {
-            name = "FLUSH_BUSY";
-            desc = "Флаг выполнения сброса словаря и отправки 0xE4";
-            sw = r; hw = w;
-        } flush_busy[3:3] = 1'b0;
+            name  = "FLUSH_BUSY";
+            desc  = "Флаг выполнения сброса словаря и отправки 0xE4";
+            sw    = r; 
+            hw    = w;
+            reset = 1'b0;
+        } flush_busy[3:3];
 
         field {
-            name = "RESET_BUSY";
-            desc = "Процесс аппаратной инициализации BRAM";
-            sw = r; hw = w;
-        } reset_busy[4:4] = 1'b0;
+            name  = "RESET_BUSY";
+            desc  = "Процесс аппаратной инициализации BRAM";
+            sw    = r; 
+            hw    = w;
+            reset = 1'b0;
+        } reset_busy[4:4];
 
         field {
-            name = "FSM_STATE";
-            desc = "Текущий код состояния FSM кодера";
-            sw = r; hw = w;
-        } fsm_state[7:5] = 3'b000;
+            name  = "FSM_STATE";
+            desc  = "Текущий код состояния FSM кодера";
+            sw    = r; 
+            hw    = w;
+            reset = 3'b000;
+        } fsm_state[7:5];
     };
-    status_reg_t STATUS_REG @ 0x08;
+    status_reg_t STATUS_REG @ 0x07;
 
     /* -------------------------------------------------------------------------
-     * 0x09 - INT_ENABLE_REG (Interrupt Enable Register)
+     * 0x08 - INT_ENABLE_REG (Interrupt Enable Register)
      * ------------------------------------------------------------------------- */
     reg int_enable_reg_t {
         name = "Interrupt Enable Register";
         desc = "Маска разрешений прерываний передатчика";
 
         field {
-            name = "FIFO_OVERFLOW";
-            desc = "Разрешение прерывания по переполнению FIFO";
-            sw = rw; hw = r;
-        } fifo_overflow[0:0] = 1'b0;
+            name  = "FIFO_OVERFLOW";
+            desc  = "Разрешение прерывания по переполнению FIFO";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } fifo_overflow[0:0];
 
         field {
-            name = "FIFO_UNDERFLOW";
-            desc = "Разрешение прерывания по чтению из пустого FIFO";
-            sw = rw; hw = r;
-        } fifo_underflow[1:1] = 1'b0;
+            name  = "FIFO_UNDERFLOW";
+            desc  = "Разрешение прерывания по чтению из пустого FIFO";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } fifo_underflow[1:1];
 
         field {
-            name = "AGING_EVENT";
-            desc = "Разрешение прерывания по циклу ротации/затухания";
-            sw = rw; hw = r;
-        } aging_event[2:2] = 1'b0;
+            name  = "AGING_EVENT";
+            desc  = "Разрешение прерывания по циклу ротации/затухания";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } aging_event[2:2];
 
         field {
-            name = "HIGH_HIT_RATE";
-            desc = "Разрешение прерывания по превышению порога hit rate";
-            sw = rw; hw = r;
-        } high_hit_rate[3:3] = 1'b0;
+            name  = "HIGH_HIT_RATE";
+            desc  = "Разрешение прерывания по превышению порога hit rate";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } high_hit_rate[3:3];
+
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw; 
+            hw    = r;
+            reset = 4'b0000;
+        } reserved[7:4];
     };
-    int_enable_reg_t INT_ENABLE_REG @ 0x09;
+    int_enable_reg_t INT_ENABLE_REG @ 0x08;
 
     /* -------------------------------------------------------------------------
-     * 0x0A - INT_STATUS_REG (Interrupt Status Register) - W1C
+     * 0x09 - INT_STATUS_REG (Interrupt Status Register) - W1C
      * ------------------------------------------------------------------------- */
     reg int_status_reg_t {
         name = "Interrupt Status Register";
         desc = "Статус прерываний передатчика (Запись '1' сбрасывает бит)";
 
         field {
-            name = "FIFO_OVERFLOW";
-            desc = "Зафиксировано переполнение FIFO";
-            sw = rw; hw = rw;
+            name    = "FIFO_OVERFLOW";
+            desc    = "Зафиксировано переполнение FIFO";
+            sw      = rw; 
+            hw      = rw;
             onwrite = woclr; 
-        } fifo_overflow[0:0] = 1'b0;
+            reset   = 1'b0;
+        } fifo_overflow[0:0];
 
         field {
-            name = "FIFO_UNDERFLOW";
-            desc = "Зафиксирована попытка чтения пустого FIFO";
-            sw = rw; hw = rw;
+            name    = "FIFO_UNDERFLOW";
+            desc    = "Зафиксирована попытка чтения пустого FIFO";
+            sw      = rw; 
+            hw      = rw;
             onwrite = woclr; 
-        } fifo_underflow[1:1] = 1'b0;
+            reset   = 1'b0;
+        } fifo_underflow[1:1];
 
         field {
-            name = "AGING_EVENT";
-            desc = "Зафиксирован цикл затухания/ротации Блума";
-            sw = rw; hw = rw;
+            name    = "AGING_EVENT";
+            desc    = "Зафиксирован цикл затухания/ротации Блума";
+            sw      = rw; 
+            hw      = rw;
             onwrite = woclr; 
-        } aging_event[2:2] = 1'b0;
+            reset   = 1'b0;
+        } aging_event[2:2];
 
         field {
-            name = "HIGH_HIT_RATE";
-            desc = "Зафиксировано превышение порога hit rate";
-            sw = rw; hw = rw;
+            name    = "HIGH_HIT_RATE";
+            desc    = "Зафиксировано превышение порога hit rate";
+            sw      = rw; 
+            hw      = rw;
             onwrite = woclr; 
-        } high_hit_rate[3:3] = 1'b0;
+            reset   = 1'b0;
+        } high_hit_rate[3:3];
+
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw; 
+            hw    = r;
+            reset = 4'b0000;
+        } reserved[7:4];
     };
-    int_status_reg_t INT_STATUS_REG @ 0x0A;
+    int_status_reg_t INT_STATUS_REG @ 0x09;
 
     /* -------------------------------------------------------------------------
-     * 0x0B - CRC_CFG_REG (CRC Configuration Register) - In-Band Sync
+     * 0x0A - CRC_CFG_REG (CRC Configuration Register) - In-Band Sync
      * ------------------------------------------------------------------------- */
     reg crc_cfg_reg_t {
         name = "CRC Configuration Register";
         desc = "Настройка режима расчета и передачи контрольных сумм CRC";
 
         field {
-            name = "CRC_EN";
-            desc = "1 = Включение контроля CRC, 0 = Отключение";
-            sw = rw; hw = r;
-        } crc_en[0:0] = 1'b1;
+            name  = "CRC_EN";
+            desc  = "1 = Включение контроля CRC, 0 = Отключение";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b1;
+        } crc_en[0:0];
 
         field {
-            name = "CRC_MODE";
-            desc = "Режим: 00 = Idle/Pause, 01 = Block Mode, 10 = Continuous Mode";
-            sw = rw; hw = r;
-        } crc_mode[2:1] = 2'b00;
+            name  = "CRC_MODE";
+            desc  = "Режим: 00 = Idle/Pause, 01 = Block Mode, 10 = Continuous Mode";
+            sw    = rw; 
+            hw    = r;
+            reset = 2'b00;
+        } crc_mode[2:1];
 
         field {
-            name = "BLOCK_SIZE";
-            desc = "Длина блока M: 000=8, 001=16, 010=32, 011=64 слов";
-            sw = rw; hw = r;
-        } block_size[5:3] = 3'b000;
+            name  = "BLOCK_SIZE";
+            desc  = "Длина блока M: 000=8, 001=16, 010=32, 011=64 слов";
+            sw    = rw; 
+            hw    = r;
+            reset = 3'b000;
+        } block_size[5:3];
+
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw; 
+            hw    = r;
+            reset = 2'b00;
+        } reserved[7:6];
     };
-    crc_cfg_reg_t CRC_CFG_REG @ 0x0B;
+    crc_cfg_reg_t CRC_CFG_REG @ 0x0A;
 
     /* -------------------------------------------------------------------------
-     * 0x0C - HIT_RATE_THRESH_REG (Hit Rate Threshold)
+     * 0x0B - HIT_RATE_THRESH_REG (Hit Rate Threshold)
      * ------------------------------------------------------------------------- */
     reg hit_rate_thresh_reg_t {
         name = "Hit Rate Threshold Register";
         desc = "Порог срабатывания прерывания HIGH_HIT_RATE (0..255)";
 
         field {
-            name = "THRESH_VAL";
-            desc = "Значение порога (255 = 100%)";
-            sw = rw; hw = r;
-        } thresh_val[7:0] = 8'h80;
+            name  = "THRESH_VAL";
+            desc  = "Значение порога (255 = 100%)";
+            sw    = rw; 
+            hw    = r;
+            reset = 8'h80;
+        } thresh_val[7:0];
     };
-    hit_rate_thresh_reg_t HIT_RATE_THRESH_REG @ 0x0C;
+    hit_rate_thresh_reg_t HIT_RATE_THRESH_REG @ 0x0B;
 
     /* -------------------------------------------------------------------------
      * 32-битные счетчики метрик (Read-Shadowed / Latch-on-Read, по 4 байта)
@@ -327,19 +445,21 @@ addrmap tx_regs {
    
     reg cnt_32_t {
         name = "32-bit Performance Counter";
-        regwidth = 32;    // Явно указываем 32 бита для данного типа регистра
-        accesswidth = 8;  // Доступ со стороны 8-битной шины APB3
+        regwidth    = 32; // Явно указываем 32 бита для данного типа регистра
+        accesswidth = 8;  // Доступ по 8-битному SPI
         field {
-            name = "VAL";
-            desc = "32-битное значение счетчика";
-            sw = r; hw = w;
+            name  = "VAL";
+            desc  = "32-битное значение счетчика";
+            sw    = r; 
+            hw    = w;
+            reset = 32'h00000000;
             counter;
         } val[31:0] = 32'h00000000;
     };
 
-    cnt_32_t CNT_TOTAL_WORDS  @ 0x10;
-    cnt_32_t CNT_KEY_FRAMES   @ 0x14;
-    cnt_32_t CNT_RAW_FRAMES   @ 0x18;
-    cnt_32_t CNT_SYNC_FRAMES  @ 0x1C;
-    cnt_32_t CNT_BF_FILTERED  @ 0x20;
+    cnt_32_t CNT_TOTAL_WORDS  @ 0x0C;
+    cnt_32_t CNT_KEY_FRAMES   @ 0x10;
+    cnt_32_t CNT_RAW_FRAMES   @ 0x14;
+    cnt_32_t CNT_SYNC_FRAMES  @ 0x18;
+    cnt_32_t CNT_BF_FILTERED  @ 0x1C;
 };

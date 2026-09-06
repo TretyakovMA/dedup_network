@@ -29,15 +29,26 @@
         <th>Name</th>
         <th></th>
     </tr>
-    <tr class="reserved-field">
-    <td>[7:3]</td>
-    <td>-</td>
-    <td>-</td>
-    <td>-</td>
-    <td></td>
-    <td>-</td>
-    <td></td>
-</tr>
+    <tr id="reserved">
+        <td>[7:3]</td>
+        <td><a href="#reserved.desc">reserved</a></td>
+        <td>
+            <span title='Readable and Writable'>rw</span></td>
+        <td>0x0
+        </td>
+        <td>
+            <input id="_FieldValueTesterreserved" class="field-value-tester"
+                type="text" autocomplete="off"
+                data-name="reserved" oninput="onDecodedFieldInput(this)"/>
+        </td>
+        <td>RESERVED</td>
+        <td>
+            <button type="button" id="_RadixButtonreserved" class="radix-button"
+                title="Switch radix" aria-label="Switch radix"
+                data-name="reserved" onclick="onRadixSwitch(this)">H</button>
+            <a class="headerlink" href="#reserved" title="Permalink to this row"></a>
+        </td>
+    </tr>
     <tr id="soft_reset">
         <td>[2]</td>
         <td><a href="#soft_reset.desc">soft_reset</a></td>
@@ -107,6 +118,13 @@
     </label>
 </p>
 <hr/><h2>Field Descriptions</h2>
+
+<h3 id="reserved.desc">reserved - RESERVED
+    <a class="headerlink" href="#reserved.desc" title="Permalink to this headline"></a>
+</h3>
+<div id="_Content.reserved.desc">
+<p>Зарезервировано</p>
+</div>
 
 <h3 id="soft_reset.desc">soft_reset - SOFT_RESET
     <a class="headerlink" href="#soft_reset.desc" title="Permalink to this headline"></a>
