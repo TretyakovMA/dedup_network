@@ -11,7 +11,8 @@ class spi_agent extends uvm_agent;
 
     spi_driver       driver;
     spi_sequencer    sequencer;
-    spi_monitor      monitor;
+    spi_write_monitor write_monitor;
+    spi_read_monitor  read_monitor;
     
 
     spi_config       cfg;
@@ -28,15 +29,17 @@ class spi_agent extends uvm_agent;
             driver.cfg = cfg;
         end
 
-        monitor     = spi_monitor::type_id::create("monitor", this);
-        monitor.cfg = cfg;
+        write_monitor     = spi_write_monitor::type_id::create("write_monitor", this);
+        read_monitor      = spi_read_monitor::type_id::create("read_monitor", this);
+        write_monitor.cfg = cfg;
+        read_monitor.cfg  = cfg;
     endfunction: build_phase
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
         if(cfg.is_active == UVM_ACTIVE) begin
             driver.seq_item_port.connect(sequencer.seq_item_export);
-            monitor.rsp_ap.connect(driver.rsp_ap);
+            read_monitor.ap.connect(driver.rsp_ap);
         end
     endfunction: connect_phase
 

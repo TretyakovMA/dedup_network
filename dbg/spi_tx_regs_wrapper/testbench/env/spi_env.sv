@@ -46,7 +46,8 @@ class spi_env extends uvm_env;
         predictor.map     = reg_block.default_map;
         predictor.adapter = adapter;
 
-        agent.monitor.ap.connect(predictor.bus_in);
+        agent.write_monitor.ap.connect(predictor.bus_in);
+        agent.read_monitor.ap.connect(predictor.bus_in);
 
         reg_block.default_map.set_sequencer(
             .sequencer(agent.sequencer),

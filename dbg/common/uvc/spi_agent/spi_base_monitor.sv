@@ -1,7 +1,7 @@
-`ifndef SPI_MONITOR
-`define SPI_MONITOR
-class spi_monitor extends uvm_monitor;
-    `uvm_component_utils(spi_monitor)
+`ifndef SPI_BASE_MONITOR
+`define SPI_BASE_MONITOR
+virtual class spi_base_monitor extends uvm_monitor;
+    `uvm_component_utils(spi_base_monitor)
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
@@ -14,10 +14,7 @@ class spi_monitor extends uvm_monitor;
 
     realtime          delay;
 
-    
-
     uvm_analysis_port #(spi_transaction) ap;
-    uvm_analysis_port #(spi_transaction) rsp_ap;
 
 
 
@@ -44,7 +41,6 @@ class spi_monitor extends uvm_monitor;
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
         ap = new("ap", this);
-        rsp_ap = new("rsp_ap", this);
     endfunction: build_phase
 
 
@@ -52,7 +48,7 @@ class spi_monitor extends uvm_monitor;
         super.connect_phase(phase);
 
         if(!uvm_config_db#(virtual spi_if.slave)::get(this, "", "vif", vif))
-            `uvm_fatal(get_type_name(), "Faild to get interface")
+            `uvm_fatal(get_name(), "Faild to get interface")
 
     endfunction: connect_phase
 
@@ -66,6 +62,9 @@ class spi_monitor extends uvm_monitor;
             edge_sck();
             wait_sck_delay();
 
+            if($isunknown(vif.mosi)) begin
+                `uvm_error(get_name(), "MOSI signal is unknown")
+            end
             data[7 - i] = vif.mosi;
             `uvm_info(get_name(), $sformatf("mosi = %b", data[7-i]), UVM_HIGH)
         end
@@ -76,27 +75,19 @@ class spi_monitor extends uvm_monitor;
             edge_sck();
             wait_sck_delay();
 
+            if($isunknown(vif.miso)) begin
+                `uvm_error(get_name(), "MISO signal is unknown")
+            end
             data[7 - i] = vif.miso;
             `uvm_info(get_name(), $sformatf("miso = %b", data[7-i]), UVM_HIGH)
         end
     endtask
 
-    task collect_transaction_data(spi_transaction tr);
-        bit[7:0] val;
-        
-        collect_mosi(val);
-        tr.addr = val[7:1];
-        tr.op = spi_transaction::spi_command_t'(val[0]);
+    pure virtual task collect_transaction_data(spi_transaction tr);
 
-        if(tr.op == spi_transaction::READ) begin 
-            collect_miso(tr.data);
-        end
-        else begin
-            collect_mosi(tr.data);
-        end
-    endtask
-
-
+    virtual function bit select_transaction(spi_transaction tr);
+        return 0;
+    endfunction
 
     task main_phase(uvm_phase phase);
         super.main_phase(phase);
@@ -104,15 +95,24 @@ class spi_monitor extends uvm_monitor;
         wait_initial_reset();
 
         forever begin
+            bit[7:0] val;
             transaction = spi_transaction::type_id::create("tr");
 
-            collect_transaction_data(transaction);
+            collect_mosi(val);
+            transaction.addr = val[7:1];
+            transaction.op = spi_transaction::spi_command_t'(val[0]);
 
-            `uvm_info(get_type_name(), {"Get transaction: ", transaction.convert2string()}, UVM_MEDIUM)
-            ap.write(transaction);
+            if(select_transaction(transaction)) begin
+                collect_transaction_data(transaction);
 
-            if(transaction.op == spi_transaction::READ) begin
-                rsp_ap.write(transaction);
+                `uvm_info(get_name(), {"Get transaction: ", transaction.convert2string()}, UVM_MEDIUM)
+                ap.write(transaction);    
+            end
+            else begin
+                repeat(8) begin
+                    edge_sck();
+                    wait_sck_delay();
+                end
             end
         end
     endtask: main_phase

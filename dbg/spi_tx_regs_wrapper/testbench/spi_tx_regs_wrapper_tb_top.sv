@@ -8,11 +8,10 @@ module spi_tx_regs_wrapper_tb_top;
     import clock_uvc_pkg::*;
     import reset_uvc_pkg::*;
 
-    logic rst_n;
     clock_uvc_if clk_if();
     reset_uvc_if rst_if();
 
-    tx_regs_pkg::tx_regs__in_t  hwif_in;
+    tx_regs_pkg::tx_regs__in_t  hwif_in = '{default: '0};
     tx_regs_pkg::tx_regs__out_t hwif_out;
 
     spi_if spi_vif(clk_if.clk, rst_if.rst);
@@ -45,8 +44,9 @@ module spi_tx_regs_wrapper_tb_top;
         $timeformat(-9, 0, " ns", 5);
 
         uvm_config_db #(virtual interface spi_if.master)::set(null, "uvm_test_top.env.spi_agent.driver", "vif", spi_vif);
-        uvm_config_db #(virtual interface spi_if.slave)::set(null, "uvm_test_top.env.spi_agent.monitor", "vif", spi_vif);
-        
+        uvm_config_db #(virtual interface spi_if.slave)::set(null, "uvm_test_top.env.spi_agent.write_monitor", "vif", spi_vif);
+        uvm_config_db #(virtual interface spi_if.slave)::set(null, "uvm_test_top.env.spi_agent.read_monitor", "vif", spi_vif);
+
         run_test();
     end
 
