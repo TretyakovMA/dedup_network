@@ -1,0 +1,17 @@
++incdir+$(TB_TOP_PATH)
++incdir+$(COMMON_PATH)/uvc/report_server
++incdir+$(COMMON_PATH)/uvc/clock_uvc
++incdir+$(COMMON_PATH)/uvc/reset_uvc
++incdir+$(COMMON_PATH)/uvc/spi_agent
+
+$(RTL_PATH)/interfaces/spi_if.sv 
+$(RTL_PATH)/gen/tx_regs_pkg.sv 
+$(RTL_PATH)/gen/tx_regs.sv 
+$(RTL_PATH)/transmitter/spi_tx_regs_wrapper.sv 
+
+$(COMMON_PATH)/gen/tx_reg_model.sv
+$(COMMON_PATH)/uvc/clock_uvc/clock_uvc_pkg.sv
+$(COMMON_PATH)/uvc/reset_uvc/reset_uvc_pkg.sv
+$(COMMON_PATH)/uvc/spi_agent/spi_agent_pkg.sv
+$(TB_TOP_PATH)/pkgs/spi_pkg.sv
+$(TB_TOP_PATH)/spi_tx_regs_wrapper_tb_top.sv

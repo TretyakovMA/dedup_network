@@ -17,5 +17,30 @@ interface spi_if (
         input  mosi,
         output miso
     );
+
+    modport master(
+        input  clk,
+        input  rst_n,
+        output sclk,
+        output cs_n,
+        output mosi,
+        input  miso
+    );
+
+    modport rx_monitor(
+        input  clk,
+        input  rst_n,
+
+        input  sclk,
+        input  miso // Фиксирует данные, отправленные dut
+    );
+
+    modport tx_monitor(
+        input  clk,
+        input  rst_n,
+
+        input  sclk,
+        input  mosi // Фиксирует данные, отправленные driver
+    );
 endinterface
 `endif
