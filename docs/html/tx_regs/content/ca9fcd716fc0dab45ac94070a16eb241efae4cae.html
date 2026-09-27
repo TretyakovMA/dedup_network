@@ -10,7 +10,7 @@
     <dt>Base Offset:</dt><dd class="address">0x8</dd>
     <dt>Size:</dt><dd class="address">0x1</dd>
     
-    <dt>Source:</dt><dd><a href="https://github.com/TretyakovMA/dedup_network/blob/main/rdl\tx_regs.rdl#L285" target="_blank">tx_regs.rdl</a></dd>
+    <dt>Source:</dt><dd><a href="https://github.com/TretyakovMA/dedup_network/blob/main/rdl\tx_regs.rdl#L286" target="_blank">tx_regs.rdl</a></dd>
     
 </dl>
 <h2>Description</h2>
@@ -30,7 +30,7 @@
         <th></th>
     </tr>
     <tr id="reserved">
-        <td>[7:4]</td>
+        <td>[7:5]</td>
         <td><a href="#reserved.desc">reserved</a></td>
         <td>
             <span title='Readable and Writable'>rw</span></td>
@@ -47,6 +47,26 @@
                 title="Switch radix" aria-label="Switch radix"
                 data-name="reserved" onclick="onRadixSwitch(this)">H</button>
             <a class="headerlink" href="#reserved" title="Permalink to this row"></a>
+        </td>
+    </tr>
+    <tr id="spi_addr_err">
+        <td>[4]</td>
+        <td><a href="#spi_addr_err.desc">spi_addr_err</a></td>
+        <td>
+            <span title='Readable and Writable'>rw</span></td>
+        <td>0x0
+        </td>
+        <td>
+            <input id="_FieldValueTesterspi_addr_err" class="field-value-tester"
+                type="text" autocomplete="off"
+                data-name="spi_addr_err" oninput="onDecodedFieldInput(this)"/>
+        </td>
+        <td>SPI_ADDR_ERR</td>
+        <td>
+            <button type="button" id="_RadixButtonspi_addr_err" class="radix-button"
+                title="Switch radix" aria-label="Switch radix"
+                data-name="spi_addr_err" onclick="onRadixSwitch(this)">H</button>
+            <a class="headerlink" href="#spi_addr_err" title="Permalink to this row"></a>
         </td>
     </tr>
     <tr id="high_hit_rate">
@@ -144,6 +164,13 @@
 </h3>
 <div id="_Content.reserved.desc">
 <p>Зарезервировано</p>
+</div>
+
+<h3 id="spi_addr_err.desc">spi_addr_err - SPI_ADDR_ERR
+    <a class="headerlink" href="#spi_addr_err.desc" title="Permalink to this headline"></a>
+</h3>
+<div id="_Content.spi_addr_err.desc">
+<p>Разрешение прерывания по обращению к незарезервированному адресу</p>
 </div>
 
 <h3 id="high_hit_rate.desc">high_hit_rate - HIGH_HIT_RATE

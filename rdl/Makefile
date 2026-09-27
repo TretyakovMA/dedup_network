@@ -2,11 +2,11 @@
 RDL_NAME     = tx_regs
 RDL_SRC      = $(RDL_NAME).rdl
 OUT_DIR      = gen
-OUT_FILE     = reg_model
+OUT_FILE     = tx_reg_model
 
 RTL_DIR      = ../rtl/$(OUT_DIR)
-UVM_DIR      = ../dbg/$(OUT_DIR)
-HTML_DIR     = ../doc/html/$(OUT_DIR)
+UVM_DIR      = ../dbg/common/$(OUT_DIR)
+HTML_DIR     = ../docs/html/$(RDL_NAME)
 
 
 PEAKRDL      = peakrdl

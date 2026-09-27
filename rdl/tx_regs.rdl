@@ -7,6 +7,7 @@
 addrmap tx_regs {
     name = "dedup_tx_top Registers";
     desc = "Карта регистров передатчика";
+    littleendian;
 
     default regwidth    = 8;
     default accesswidth = 8;
@@ -319,12 +320,20 @@ addrmap tx_regs {
         } high_hit_rate[3:3];
 
         field {
+            name  = "SPI_ADDR_ERR";
+            desc  = "Разрешение прерывания по обращению к незарезервированному адресу";
+            sw    = rw; 
+            hw    = r;
+            reset = 1'b0;
+        } spi_addr_err[4:4];
+
+        field {
             name  = "RESERVED";
             desc  = "Зарезервировано";
             sw    = rw; 
             hw    = r;
-            reset = 4'b0000;
-        } reserved[7:4];
+            reset = 3'b000;
+        } reserved[7:5];
     };
     int_enable_reg_t INT_ENABLE_REG @ 0x08;
 
@@ -372,12 +381,21 @@ addrmap tx_regs {
         } high_hit_rate[3:3];
 
         field {
+            name    = "SPI_ADDR_ERR";
+            desc    = "Зафиксировано обращение к незарезервированному адресу";
+            sw      = rw; 
+            hw      = rw;
+            onwrite = woclr; 
+            reset   = 1'b0;
+        } spi_addr_err[4:4];
+
+        field {
             name  = "RESERVED";
             desc  = "Зарезервировано";
             sw    = rw; 
             hw    = r;
-            reset = 4'b0000;
-        } reserved[7:4];
+            reset = 3'b000;
+        } reserved[7:5];
     };
     int_status_reg_t INT_STATUS_REG @ 0x09;
 
@@ -453,7 +471,6 @@ addrmap tx_regs {
             sw    = r; 
             hw    = w;
             reset = 32'h00000000;
-            counter;
         } val[31:0] = 32'h00000000;
     };
 
