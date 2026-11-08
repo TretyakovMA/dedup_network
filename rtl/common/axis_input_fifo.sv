@@ -4,8 +4,13 @@ module axis_input_fifo #(
     parameter int WIDTH = 32, // Разрядность входных данных
     parameter int DEPTH = 16  // Глубина FIFO
 )(
+    input  logic                  clk,
+    input  logic                  rst_n,
+
     // Порт AXI-Stream Slave
-    axis_if.slave s_axis,
+    input  logic [WIDTH-1:0]      tdata,
+    input  logic                  tvalid,
+    output logic                  tready,
 
     // Выходной интерфейс чтения для FSM кодера передатчика
     input  logic                  r_en,   // Сигнал чтения
@@ -18,17 +23,17 @@ module axis_input_fifo #(
         .WIDTH(WIDTH),
         .DEPTH(DEPTH)
     ) fifo_inst (
-        .clk   (s_axis.clk   ),
-        .rst_n (s_axis.rst_n ),
-        .w_en  (s_axis.tvalid),
-        .w_data(s_axis.tdata ),
-        .r_en  (r_en         ),
-        .r_data(r_data       ),
-        .full  (full         ), 
-        .empty (empty        )
+        .clk   (clk   ),
+        .rst_n (rst_n ),
+        .w_en  (tvalid),
+        .w_data(tdata ),
+        .r_en  (r_en  ),
+        .r_data(r_data),
+        .full  (full  ),
+        .empty (empty )
     );
 
-    assign s_axis.tready = !full;
+    assign tready = !full;
 
 
 endmodule

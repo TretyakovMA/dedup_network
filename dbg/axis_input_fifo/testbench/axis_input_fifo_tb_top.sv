@@ -16,12 +16,13 @@ module axis_input_fifo_tb_top;
     logic clk;
     logic rst_n;
 
-    axis_if #(WIDTH) axis_bus (clk, rst_n);
-    fifo_if #(WIDTH) fifo_bus (clk, rst_n);
-
-    
-    virtual axis_if#(WIDTH)   axis_vif = axis_bus.tb_driver;
-    virtual fifo_if#(WIDTH)   fifo_vif = fifo_bus.axis_tb_driver;
+    logic [WIDTH-1:0] tdata;
+    logic             tvalid;
+    logic             tready;
+    logic             r_en;
+    logic [WIDTH-1:0] r_data;
+    logic             empty;
+    logic             full;
 
 
     typedef logic[WIDTH-1:0] data_t;
@@ -62,11 +63,15 @@ module axis_input_fifo_tb_top;
         .WIDTH(WIDTH),
         .DEPTH(DEPTH)
     ) dut (
-        .s_axis(axis_bus),
-        .full  (fifo_bus.full),
-        .r_data(fifo_bus.r_data),
-        .r_en  (fifo_bus.r_en),
-        .empty (fifo_bus.empty)
+        .clk   (clk),
+        .rst_n (rst_n),
+        .tdata (tdata),
+        .tvalid(tvalid),
+        .tready(tready),
+        .r_en  (r_en),
+        .r_data(r_data),
+        .empty (empty),
+        .full  (full)
     );
 
     initial begin
@@ -77,16 +82,14 @@ module axis_input_fifo_tb_top;
 
 
     task initialize();
-        rst_n      = 0;
-
-        axis_vif.tvalid = 0;
-        axis_vif.tdata  = 0;
-        axis_vif.tlast  = 0;
-        fifo_vif.r_en   = 0;
+        rst_n  = 0;
+        tvalid = 0;
+        tdata  = '0;
+        r_en   = 0;
 
         #(RESET_TIME);
         rst_n = 1;
-        @(axis_vif.driver_cb); 
+        @(posedge clk);
     endtask
 
 
@@ -98,70 +101,58 @@ module axis_input_fifo_tb_top;
 
 
     task write(input data_t data);
-        // 1. Запоминаем ожидаемый флаг ДО того, как запись применится в DUT
-        automatic bit expected_full = is_fifo_full(); 
-        
-        // 2. Выставляем данные и разрешение строго через клокблок (<=)
-        axis_vif.driver_cb.tdata  <= data;
-        axis_vif.driver_cb.tvalid <= 1;
-        
+        automatic bit expected_full = is_fifo_full();
+
+        @(negedge clk);
+        tdata  = data;
+        tvalid = 1;
         $display("Time: %0t, Writing data: %b to FIFO", $time, data);
-        
-        // 3. Ждем фронта (клокблок сэмплирует full за 1нс до этой точки)
-        @(axis_vif.driver_cb);
-        
-        // 4. Проверяем флаг full через клокблок
-        if(fifo_vif.axis_cb.full !== expected_full) begin
+
+        @(posedge clk);
+        if(full !== expected_full) begin
             $error(`RED_STR("Time: %0t, ERROR: Full flag mismatch. Expected: %b, Got: %b"), 
-                    $time, expected_full, fifo_vif.axis_cb.full);
+                    $time, expected_full, full);
             error_count++;
-        end 
-        
-        // 5. Только теперь обновляем локальную модель и снимаем w_en
+        end
+
         push_fifo(data);
-        axis_vif.driver_cb.tvalid <= 0;
+        @(negedge clk);
+        tvalid = 0;
     endtask
 
     task read();
         automatic bit expected_empty = is_fifo_empty();
         automatic data_t expected_data;
-        
-        // Если FIFO не пуст, подглядываем (peek) данные на вершине очереди, 
-        // но пока не удаляем их из модели
+
         if (!expected_empty) begin
-            expected_data = fifo_q[0]; 
+            expected_data = fifo_q[0];
         end
-        
-        // 1. Выставляем запрос на чтение через клокблок
-        fifo_vif.axis_cb.r_en <= 1;
-        
-        // 2. Ждем фронта (клокблок сэмплирует сигналы за 1нс до этой точки)
-        @(fifo_vif.axis_cb);
-        
-        // 3. Проверяем флаг empty (он отражает состояние ДО этого чтения)
-        if(fifo_vif.axis_cb.empty !== expected_empty) begin
+
+        @(negedge clk);
+        r_en = 1;
+
+        @(posedge clk);
+        if(empty !== expected_empty) begin
             $error(`RED_STR("Time: %0t, ERROR: Empty flag mismatch. Expected: %b, Got: %b"), 
-                    $time, expected_empty, fifo_vif.axis_cb.empty);
+                    $time, expected_empty, empty);
             error_count++;
         end
-        
-        // 4. Проверяем данные (для FWFT-режима они уже были на шине к моменту сэмплирования)
+
         if(!expected_empty) begin
-            if(fifo_vif.axis_cb.r_data !== expected_data) begin
+            if(r_data !== expected_data) begin
                 $error(`RED_STR("Time: %0t, ERROR: Read data %b does not match expected data %b"), 
-                        $time, fifo_vif.axis_cb.r_data, expected_data);
+                        $time, r_data, expected_data);
                 error_count++;
             end 
             else begin
                 $display("Time: %0t, Read data %b matches expected data %b", 
-                        $time, fifo_vif.axis_cb.r_data, expected_data);
+                        $time, r_data, expected_data);
             end
-            // 5. И только после успешной проверки удаляем элемент из модели
-            void'(pop_fifo()); 
+            void'(pop_fifo());
         end
-        
-        // 6. Снимаем запрос чтения
-        fifo_vif.axis_cb.r_en <= 0;
+
+        @(negedge clk);
+        r_en = 0;
     endtask
 
 

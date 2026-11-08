@@ -1,0 +1,3 @@
+$(RTL_PATH)/common/fifo.sv
+$(RTL_PATH)/common/axis_input_fifo.sv
+$(TB_TOP_PATH)/axis_input_fifo_tb_top.sv

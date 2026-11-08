@@ -39,7 +39,7 @@ UVM_SRC        = $(QUESTASIM_DIR)/verilog_src/uvm-1.2/src
 UVM_DPI        = $(QUESTASIM_DIR)/uvm-1.2/$(DPI_OS_DIR)/uvm_dpi
 
 # Переменные от Python
-TEST_NAME      ?= base_test
+TESTNAME       ?= $@
 SEED           ?= random
 VERBOSITY      ?= UVM_MEDIUM
 ITER           ?= 1
@@ -48,12 +48,16 @@ RUN_DIR        ?= .
 
 TIMEOUT        = 1000000000
 
-GUI      = OFF
-SAVE_WLF = ON
-SAVE_VCD = OFF
-COVERAGE = OFF
-DEL_TRANSCRIPT = ON
-CUSTOM_REPORT_SERVER = 0N
+GUI      ?= OFF
+SAVE_WLF ?= ON
+SAVE_VCD ?= OFF
+COVERAGE ?= OFF
+DEL_TRANSCRIPT ?= ON
+CUSTOM_REPORT_SERVER ?= 0N
+
+TESTLIST = unit
+
+-include testlist.inc
 
 RUN_SETUP =
 TEST_SETUP =
@@ -73,11 +77,11 @@ else
 endif
 
 ifeq ($(SAVE_WLF),ON)
-	RUN_SETUP += -wlf "$(RUN_DIR)/vsim_$(TEST_NAME)_$(ITER).wlf"
+	RUN_SETUP += -wlf "$(RUN_DIR)/vsim_$(TESTNAME)_$(ITER).wlf"
 endif
 
 ifeq ($(SAVE_VCD),ON)
-	DO_COMMAND += vcd file "$(RUN_DIR)/vsim_$(TEST_NAME)_$(ITER).vcd"; vcd add -r /*;
+	DO_COMMAND += vcd file "$(RUN_DIR)/vsim_$(TESTNAME)_$(ITER).vcd"; vcd add -r /*;
 endif
 
 DO_COMMAND += onfinish stop; run -all;
@@ -85,7 +89,7 @@ DO_COMMAND += onfinish stop; run -all;
 ifeq ($(COVERAGE),ON)
 	RUN_SETUP += -cvgperinstance
 	RUN_SETUP += -coverage
-	DO_COMMAND += coverage save "$(RUN_DIR)/ucdb_$(TEST_NAME)_$(ITER).ucdb";
+	DO_COMMAND += coverage save "$(RUN_DIR)/ucdb_$(TESTNAME)_$(ITER).ucdb";
 endif
 
 ifeq ($(DEL_TRANSCRIPT),ON)
@@ -109,7 +113,7 @@ RUN_COMMAND = vsim         \
 			  $(TOP_MODULE) \
 			  -sv_seed $(SEED) \
 			  +UVM_TIMEOUT=$(TIMEOUT) \
-			  "+UVM_TESTNAME=$(TEST_NAME)" \
+			  +UVM_TESTNAME=$(TESTNAME) \
 			  "+RUN_COUNT=$(ITER)" \
 			  "+UVM_VERBOSITY=$(VERBOSITY)" \
 			  "+SIM_START_TIME=$(SIM_START_TIME)" \
@@ -137,7 +141,7 @@ compile: pre_compile
 
 		
 
-run: compile
+$(TESTLIST): compile
 	$(RUN_COMMAND)
 
 
