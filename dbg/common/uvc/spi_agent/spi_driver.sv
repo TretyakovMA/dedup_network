@@ -10,7 +10,7 @@ class spi_driver extends uvm_driver #(spi_transaction);
     `uvm_analysis_imp_decl(_rsp)
     uvm_analysis_imp_rsp#(spi_transaction, spi_driver) rsp_ap;
 
-    virtual spi_if.master  vif;
+    virtual spi_interface.driver  vif;
     spi_transaction        transaction;
     spi_config             cfg;
     realtime               sclk_half_period;
@@ -96,7 +96,7 @@ class spi_driver extends uvm_driver #(spi_transaction);
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
-        if(!uvm_config_db#(virtual spi_if.master)::get(this, "", "vif", vif))
+        if(!uvm_config_db#(virtual spi_interface.driver)::get(this, "", "vif", vif))
             `uvm_fatal(get_name(), "Faild to get interface")
             
     endfunction: connect_phase

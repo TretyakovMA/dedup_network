@@ -7,7 +7,7 @@ virtual class spi_base_monitor extends uvm_monitor;
         super.new(name, parent);
     endfunction: new
 
-    virtual spi_if.slave  vif;
+    virtual spi_interface.monitor  vif;
 
     spi_transaction   transaction;
     spi_config        cfg;
@@ -47,7 +47,7 @@ virtual class spi_base_monitor extends uvm_monitor;
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
 
-        if(!uvm_config_db#(virtual spi_if.slave)::get(this, "", "vif", vif))
+        if(!uvm_config_db#(virtual spi_interface.monitor)::get(this, "", "vif", vif))
             `uvm_fatal(get_name(), "Faild to get interface")
 
     endfunction: connect_phase

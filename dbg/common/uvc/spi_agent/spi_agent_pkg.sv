@@ -1,5 +1,6 @@
 `ifndef SPI_AGENT_PKG
 `define SPI_AGENT_PKG
+`include "spi_interface.sv"
 package spi_agent_pkg;
     import uvm_pkg::*;
     `include "uvm_macros.svh"

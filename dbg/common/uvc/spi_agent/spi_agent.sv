@@ -9,13 +9,13 @@ class spi_agent extends uvm_agent;
 
     typedef uvm_sequencer #(spi_transaction) spi_sequencer;
 
-    spi_driver       driver;
-    spi_sequencer    sequencer;
+    spi_driver        driver;
+    spi_sequencer     sequencer;
     spi_write_monitor write_monitor;
     spi_read_monitor  read_monitor;
     
 
-    spi_config       cfg;
+    spi_config        cfg;
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);

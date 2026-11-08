@@ -4,7 +4,11 @@ module spi_tx_regs_wrapper(
     input logic clk,
     input logic rst_n,
 
-    spi_if.slave s_spi,
+    input  logic spi_sclk,
+    input  logic spi_cs_n,
+    input  logic spi_mosi,
+    output logic spi_miso,
+    output logic spi_irq,
 
     input  tx_regs_pkg::tx_regs__in_t  hwif_in,
     output tx_regs_pkg::tx_regs__out_t hwif_out
@@ -64,9 +68,15 @@ module spi_tx_regs_wrapper(
         .hwif_out             (hwif_out)
     );
 
+    assign spi_irq = hwif_out.INT_STATUS_REG.fifo_overflow.value |
+                     hwif_out.INT_STATUS_REG.fifo_underflow.value |
+                     hwif_out.INT_STATUS_REG.aging_event.value |
+                     hwif_out.INT_STATUS_REG.high_hit_rate.value |
+                     hwif_out.INT_STATUS_REG.spi_addr_err.value;
+
     // Определяем фронты относительно предыдущего состояния SCLK.
-    assign sclk_rise = !sclk_d && s_spi.sclk;
-    assign sclk_fall = sclk_d && !s_spi.sclk;
+    assign sclk_rise = !sclk_d && spi_sclk;
+    assign sclk_fall = sclk_d && !spi_sclk;
 
     // Комбинационная логика переходов автомата SPI.
     // Первый байт команды принимается в состоянии CMD, второй байт
@@ -74,7 +84,7 @@ module spi_tx_regs_wrapper(
     always_comb begin
         next_state = state;
 
-        if (s_spi.cs_n) begin
+        if (spi_cs_n) begin
             next_state = IDLE;
         end
         else begin
@@ -101,13 +111,13 @@ module spi_tx_regs_wrapper(
 
     // MISO отключается при неактивном CS. Во время чтения ответ регистра
     // выдаётся старшим битом первым, остальные режимы используют сдвиговый регистр.
-    assign s_spi.miso = s_spi.cs_n ? 1'bz :
-                        ((bus_req && !bus_req_is_wr) ? cpuif_rd_data[7 - read_bit_cnt] : tx_shift[7]);
+    assign spi_miso = spi_cs_n ? 1'bz :
+                      ((bus_req && !bus_req_is_wr) ? cpuif_rd_data[7 - read_bit_cnt] : tx_shift[7]);
 
     // Обработка асинхронного SPI-интерфейса.
     // Входные данные фиксируются на rising edge, выходные данные меняются
     // на falling edge, что соответствует режиму SPI CPHA=0.
-    always @(s_spi.sclk or s_spi.cs_n or negedge rst_n) begin
+    always @(spi_sclk or spi_cs_n or negedge rst_n) begin
         if (!rst_n) begin
             bit_cnt            <= '0;
             write_op           <= 1'b0;
@@ -124,14 +134,14 @@ module spi_tx_regs_wrapper(
             response_first_bit <= 1'b0;
             state              <= IDLE;
         end 
-        else if (s_spi.cs_n) begin
+        else if (spi_cs_n) begin
             bit_cnt            <= '0;
             rx_shift           <= '0;
             tx_shift           <= '0;
             bus_req            <= 1'b0;
             response_first_bit <= 1'b0;
             state              <= IDLE;
-            sclk_d             <= s_spi.sclk;
+            sclk_d             <= spi_sclk;
         end 
         else begin
             // Переходы, совпадающие с событием SCLK, фиксируем здесь,
@@ -154,19 +164,19 @@ module spi_tx_regs_wrapper(
             end
 
             if (sclk_rise) begin
-                rx_shift <= {rx_shift[6:0], s_spi.mosi};
+                rx_shift <= {rx_shift[6:0], spi_mosi};
                 if (state == CMD) begin
                     if (bit_cnt == 3'd7) begin
                         // Последний бит команды: 1 — чтение, 0 — запись.
-                        write_op      <= !s_spi.mosi;
+                        write_op      <= !spi_mosi;
                         bus_addr      <= rx_shift[5:0];
-                        bus_req_is_wr <= !s_spi.mosi;
+                        bus_req_is_wr <= !spi_mosi;
                         bus_wr_biten  <= 8'hff;
                         bit_cnt       <= '0;
                         read_bit_cnt  <= '0;
                         read_active   <= 1'b0;
 
-                        if (s_spi.mosi) begin
+                        if (spi_mosi) begin
                             bus_wr_data <= 8'h00;
                             bus_req     <= 1'b1;
                         end
@@ -181,7 +191,7 @@ module spi_tx_regs_wrapper(
                     end
                     if (bit_cnt == 3'd7) begin
                         if (write_op) begin
-                            bus_wr_data <= {rx_shift[6:0], s_spi.mosi};
+                            bus_wr_data <= {rx_shift[6:0], spi_mosi};
                             bus_req     <= 1'b1;
                         end
                         bit_cnt <= '0;
@@ -207,7 +217,7 @@ module spi_tx_regs_wrapper(
                     tx_shift <= {tx_shift[6:0], 1'b0};
                 end
             end
-            sclk_d <= s_spi.sclk;
+            sclk_d <= spi_sclk;
         end
     end
 

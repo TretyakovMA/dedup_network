@@ -14,14 +14,19 @@ module spi_tx_regs_wrapper_tb_top;
     tx_regs_pkg::tx_regs__in_t  hwif_in = '{default: '0};
     tx_regs_pkg::tx_regs__out_t hwif_out;
 
-    spi_if spi_vif(clk_if.clk, rst_if.rst);
+    spi_interface spi_if(clk_if.clk, rst_if.rst);
+    logic spi_irq;
 
     spi_tx_regs_wrapper dut(
-        .clk(clk_if.clk),
-        .rst_n(rst_if.rst),
-        .hwif_in(hwif_in),
-        .hwif_out(hwif_out),
-        .s_spi(spi_vif)
+        .clk     (clk_if.clk),
+        .rst_n   (rst_if.rst),
+        .spi_sclk(spi_if.sclk),
+        .spi_cs_n(spi_if.cs_n),
+        .spi_mosi(spi_if.mosi),
+        .spi_miso(spi_if.miso),
+        .spi_irq (spi_irq),
+        .hwif_in (hwif_in),
+        .hwif_out(hwif_out)
     );
 
     
@@ -43,9 +48,9 @@ module spi_tx_regs_wrapper_tb_top;
     initial begin
         $timeformat(-9, 0, " ns", 5);
 
-        uvm_config_db #(virtual interface spi_if.master)::set(null, "uvm_test_top.env.spi_agent.driver", "vif", spi_vif);
-        uvm_config_db #(virtual interface spi_if.slave)::set(null, "uvm_test_top.env.spi_agent.write_monitor", "vif", spi_vif);
-        uvm_config_db #(virtual interface spi_if.slave)::set(null, "uvm_test_top.env.spi_agent.read_monitor", "vif", spi_vif);
+        uvm_config_db #(virtual interface spi_interface.driver)::set(null, "uvm_test_top.env.spi_agent.driver", "vif", spi_if);
+        uvm_config_db #(virtual interface spi_interface.monitor)::set(null, "uvm_test_top.env.spi_agent.write_monitor", "vif", spi_if);
+        uvm_config_db #(virtual interface spi_interface.monitor)::set(null, "uvm_test_top.env.spi_agent.read_monitor", "vif", spi_if);
 
         run_test();
     end
