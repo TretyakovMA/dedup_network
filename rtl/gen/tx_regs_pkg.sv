@@ -4,8 +4,8 @@
 package tx_regs_pkg;
 
     localparam TX_REGS_DATA_WIDTH = 8;
-    localparam TX_REGS_MIN_ADDR_WIDTH = 5;
-    localparam TX_REGS_SIZE = 'h20;
+    localparam TX_REGS_MIN_ADDR_WIDTH = 6;
+    localparam TX_REGS_SIZE = 'h2c;
 
     typedef struct {
         logic next;
@@ -46,10 +46,6 @@ package tx_regs_pkg;
 
     typedef struct {
         logic next;
-    } tx_regs__int_status_reg_t__fifo_underflow__in_t;
-
-    typedef struct {
-        logic next;
     } tx_regs__int_status_reg_t__aging_event__in_t;
 
     typedef struct {
@@ -57,20 +53,61 @@ package tx_regs_pkg;
     } tx_regs__int_status_reg_t__high_hit_rate__in_t;
 
     typedef struct {
+        logic next;
+    } tx_regs__int_status_reg_t__spi_addr_err__in_t;
+
+    typedef struct {
+        logic next;
+    } tx_regs__int_status_reg_t__i2c_nack__in_t;
+
+    typedef struct {
+        logic next;
+    } tx_regs__int_status_reg_t__i2c_timeout__in_t;
+
+    typedef struct {
+        logic next;
+    } tx_regs__int_status_reg_t__i2c_bus_err__in_t;
+
+    typedef struct {
         tx_regs__int_status_reg_t__fifo_overflow__in_t fifo_overflow;
-        tx_regs__int_status_reg_t__fifo_underflow__in_t fifo_underflow;
         tx_regs__int_status_reg_t__aging_event__in_t aging_event;
         tx_regs__int_status_reg_t__high_hit_rate__in_t high_hit_rate;
+        tx_regs__int_status_reg_t__spi_addr_err__in_t spi_addr_err;
+        tx_regs__int_status_reg_t__i2c_nack__in_t i2c_nack;
+        tx_regs__int_status_reg_t__i2c_timeout__in_t i2c_timeout;
+        tx_regs__int_status_reg_t__i2c_bus_err__in_t i2c_bus_err;
     } tx_regs__int_status_reg_t__in_t;
 
     typedef struct {
         logic [31:0] next;
-        logic incr;
     } tx_regs__cnt_32_t__val__in_t;
 
     typedef struct {
         tx_regs__cnt_32_t__val__in_t val;
     } tx_regs__cnt_32_t__in_t;
+
+    typedef struct {
+        logic next;
+    } tx_regs__i2c_status_reg_t__busy__in_t;
+
+    typedef struct {
+        logic next;
+    } tx_regs__i2c_status_reg_t__poll_paused__in_t;
+
+    typedef struct {
+        logic next;
+    } tx_regs__i2c_status_reg_t__bus_recovery__in_t;
+
+    typedef struct {
+        logic [4:0] next;
+    } tx_regs__i2c_status_reg_t__reserved__in_t;
+
+    typedef struct {
+        tx_regs__i2c_status_reg_t__busy__in_t busy;
+        tx_regs__i2c_status_reg_t__poll_paused__in_t poll_paused;
+        tx_regs__i2c_status_reg_t__bus_recovery__in_t bus_recovery;
+        tx_regs__i2c_status_reg_t__reserved__in_t reserved;
+    } tx_regs__i2c_status_reg_t__in_t;
 
     typedef struct {
         tx_regs__status_reg_t__in_t STATUS_REG;
@@ -80,6 +117,7 @@ package tx_regs_pkg;
         tx_regs__cnt_32_t__in_t CNT_RAW_FRAMES;
         tx_regs__cnt_32_t__in_t CNT_SYNC_FRAMES;
         tx_regs__cnt_32_t__in_t CNT_BF_FILTERED;
+        tx_regs__i2c_status_reg_t__in_t I2C_STATUS_REG;
     } tx_regs__in_t;
 
     typedef struct {
@@ -199,7 +237,7 @@ package tx_regs_pkg;
 
     typedef struct {
         logic value;
-    } tx_regs__int_enable_reg_t__fifo_underflow__out_t;
+    } tx_regs__int_enable_reg_t__reserved_1__out_t;
 
     typedef struct {
         logic value;
@@ -210,15 +248,30 @@ package tx_regs_pkg;
     } tx_regs__int_enable_reg_t__high_hit_rate__out_t;
 
     typedef struct {
-        logic [3:0] value;
-    } tx_regs__int_enable_reg_t__reserved__out_t;
+        logic value;
+    } tx_regs__int_enable_reg_t__spi_addr_err__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__int_enable_reg_t__i2c_nack__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__int_enable_reg_t__i2c_timeout__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__int_enable_reg_t__i2c_bus_err__out_t;
 
     typedef struct {
         tx_regs__int_enable_reg_t__fifo_overflow__out_t fifo_overflow;
-        tx_regs__int_enable_reg_t__fifo_underflow__out_t fifo_underflow;
+        tx_regs__int_enable_reg_t__reserved_1__out_t reserved_1;
         tx_regs__int_enable_reg_t__aging_event__out_t aging_event;
         tx_regs__int_enable_reg_t__high_hit_rate__out_t high_hit_rate;
-        tx_regs__int_enable_reg_t__reserved__out_t reserved;
+        tx_regs__int_enable_reg_t__spi_addr_err__out_t spi_addr_err;
+        tx_regs__int_enable_reg_t__i2c_nack__out_t i2c_nack;
+        tx_regs__int_enable_reg_t__i2c_timeout__out_t i2c_timeout;
+        tx_regs__int_enable_reg_t__i2c_bus_err__out_t i2c_bus_err;
     } tx_regs__int_enable_reg_t__out_t;
 
     typedef struct {
@@ -227,7 +280,7 @@ package tx_regs_pkg;
 
     typedef struct {
         logic value;
-    } tx_regs__int_status_reg_t__fifo_underflow__out_t;
+    } tx_regs__int_status_reg_t__reserved_1__out_t;
 
     typedef struct {
         logic value;
@@ -238,15 +291,30 @@ package tx_regs_pkg;
     } tx_regs__int_status_reg_t__high_hit_rate__out_t;
 
     typedef struct {
-        logic [3:0] value;
-    } tx_regs__int_status_reg_t__reserved__out_t;
+        logic value;
+    } tx_regs__int_status_reg_t__spi_addr_err__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__int_status_reg_t__i2c_nack__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__int_status_reg_t__i2c_timeout__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__int_status_reg_t__i2c_bus_err__out_t;
 
     typedef struct {
         tx_regs__int_status_reg_t__fifo_overflow__out_t fifo_overflow;
-        tx_regs__int_status_reg_t__fifo_underflow__out_t fifo_underflow;
+        tx_regs__int_status_reg_t__reserved_1__out_t reserved_1;
         tx_regs__int_status_reg_t__aging_event__out_t aging_event;
         tx_regs__int_status_reg_t__high_hit_rate__out_t high_hit_rate;
-        tx_regs__int_status_reg_t__reserved__out_t reserved;
+        tx_regs__int_status_reg_t__spi_addr_err__out_t spi_addr_err;
+        tx_regs__int_status_reg_t__i2c_nack__out_t i2c_nack;
+        tx_regs__int_status_reg_t__i2c_timeout__out_t i2c_timeout;
+        tx_regs__int_status_reg_t__i2c_bus_err__out_t i2c_bus_err;
     } tx_regs__int_status_reg_t__out_t;
 
     typedef struct {
@@ -281,6 +349,90 @@ package tx_regs_pkg;
     } tx_regs__hit_rate_thresh_reg_t__out_t;
 
     typedef struct {
+        logic [7:0] value;
+    } tx_regs__sdr_clk_div_lo_t__val__out_t;
+
+    typedef struct {
+        tx_regs__sdr_clk_div_lo_t__val__out_t val;
+    } tx_regs__sdr_clk_div_lo_t__out_t;
+
+    typedef struct {
+        logic [7:0] value;
+    } tx_regs__sdr_clk_div_hi_t__val__out_t;
+
+    typedef struct {
+        tx_regs__sdr_clk_div_hi_t__val__out_t val;
+    } tx_regs__sdr_clk_div_hi_t__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__i2c_ctrl_reg_t__i2c_en__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__i2c_ctrl_reg_t__poll_en__out_t;
+
+    typedef struct {
+        logic [5:0] value;
+    } tx_regs__i2c_ctrl_reg_t__reserved__out_t;
+
+    typedef struct {
+        tx_regs__i2c_ctrl_reg_t__i2c_en__out_t i2c_en;
+        tx_regs__i2c_ctrl_reg_t__poll_en__out_t poll_en;
+        tx_regs__i2c_ctrl_reg_t__reserved__out_t reserved;
+    } tx_regs__i2c_ctrl_reg_t__out_t;
+
+    typedef struct {
+        logic [7:0] value;
+    } tx_regs__i2c_clk_div_byte_t__val__out_t;
+
+    typedef struct {
+        tx_regs__i2c_clk_div_byte_t__val__out_t val;
+    } tx_regs__i2c_clk_div_byte_t__out_t;
+
+    typedef struct {
+        logic [7:0] value;
+    } tx_regs__i2c_clk_div_hi_t__val__out_t;
+
+    typedef struct {
+        tx_regs__i2c_clk_div_hi_t__val__out_t val;
+    } tx_regs__i2c_clk_div_hi_t__out_t;
+
+    typedef struct {
+        logic [3:0] value;
+    } tx_regs__i2c_sensor_en_t__sensor_en__out_t;
+
+    typedef struct {
+        logic [3:0] value;
+    } tx_regs__i2c_sensor_en_t__reserved__out_t;
+
+    typedef struct {
+        tx_regs__i2c_sensor_en_t__sensor_en__out_t sensor_en;
+        tx_regs__i2c_sensor_en_t__reserved__out_t reserved;
+    } tx_regs__i2c_sensor_en_t__out_t;
+
+    typedef struct {
+        logic [6:0] value;
+    } tx_regs__i2c_sensor_addr_t__addr__out_t;
+
+    typedef struct {
+        logic value;
+    } tx_regs__i2c_sensor_addr_t__reserved__out_t;
+
+    typedef struct {
+        tx_regs__i2c_sensor_addr_t__addr__out_t addr;
+        tx_regs__i2c_sensor_addr_t__reserved__out_t reserved;
+    } tx_regs__i2c_sensor_addr_t__out_t;
+
+    typedef struct {
+        logic [7:0] value;
+    } tx_regs__i2c_timeout_reg_t__val__out_t;
+
+    typedef struct {
+        tx_regs__i2c_timeout_reg_t__val__out_t val;
+    } tx_regs__i2c_timeout_reg_t__out_t;
+
+    typedef struct {
         tx_regs__ctrl_reg_t__out_t CTRL_REG;
         tx_regs__mode_reg_t__out_t MODE_REG;
         tx_regs__aging_period_lo_t__out_t AGING_PERIOD_LO;
@@ -292,5 +444,16 @@ package tx_regs_pkg;
         tx_regs__int_status_reg_t__out_t INT_STATUS_REG;
         tx_regs__crc_cfg_reg_t__out_t CRC_CFG_REG;
         tx_regs__hit_rate_thresh_reg_t__out_t HIT_RATE_THRESH_REG;
+        tx_regs__sdr_clk_div_lo_t__out_t SDR_CLK_DIV_LO;
+        tx_regs__sdr_clk_div_hi_t__out_t SDR_CLK_DIV_HI;
+        tx_regs__i2c_ctrl_reg_t__out_t I2C_CTRL_REG;
+        tx_regs__i2c_clk_div_byte_t__out_t I2C_CLK_DIV_LO;
+        tx_regs__i2c_clk_div_hi_t__out_t I2C_CLK_DIV_HI;
+        tx_regs__i2c_sensor_en_t__out_t I2C_SENSOR_EN;
+        tx_regs__i2c_sensor_addr_t__out_t I2C_SENSOR_ADDR0;
+        tx_regs__i2c_sensor_addr_t__out_t I2C_SENSOR_ADDR1;
+        tx_regs__i2c_sensor_addr_t__out_t I2C_SENSOR_ADDR2;
+        tx_regs__i2c_sensor_addr_t__out_t I2C_SENSOR_ADDR3;
+        tx_regs__i2c_timeout_reg_t__out_t I2C_TIMEOUT_REG;
     } tx_regs__out_t;
 endpackage

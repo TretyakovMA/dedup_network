@@ -12,7 +12,7 @@ HTML_DIR     = ../docs/html/$(RDL_NAME)
 PEAKRDL      = peakrdl
 CPU_IF       = passthrough   # Варианты: passthrough,apb3,apb3-flat,apb4,apb4-flat,axi4-lite,axi4-lite-flat,avalon-mm,avalon-mm-flat,wishbone,wishbone-flat,obi,obi-flat
 
-.PHONY: all rtl uvm html header python lint help
+.PHONY: all rtl uvm html help
 
 all: rtl uvm html
 

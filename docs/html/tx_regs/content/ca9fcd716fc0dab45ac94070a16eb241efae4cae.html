@@ -29,24 +29,64 @@
         <th>Name</th>
         <th></th>
     </tr>
-    <tr id="reserved">
-        <td>[7:5]</td>
-        <td><a href="#reserved.desc">reserved</a></td>
+    <tr id="i2c_bus_err">
+        <td>[7]</td>
+        <td><a href="#i2c_bus_err.desc">i2c_bus_err</a></td>
         <td>
             <span title='Readable and Writable'>rw</span></td>
         <td>0x0
         </td>
         <td>
-            <input id="_FieldValueTesterreserved" class="field-value-tester"
+            <input id="_FieldValueTesteri2c_bus_err" class="field-value-tester"
                 type="text" autocomplete="off"
-                data-name="reserved" oninput="onDecodedFieldInput(this)"/>
+                data-name="i2c_bus_err" oninput="onDecodedFieldInput(this)"/>
         </td>
-        <td>RESERVED</td>
+        <td>I2C_BUS_ERR</td>
         <td>
-            <button type="button" id="_RadixButtonreserved" class="radix-button"
+            <button type="button" id="_RadixButtoni2c_bus_err" class="radix-button"
                 title="Switch radix" aria-label="Switch radix"
-                data-name="reserved" onclick="onRadixSwitch(this)">H</button>
-            <a class="headerlink" href="#reserved" title="Permalink to this row"></a>
+                data-name="i2c_bus_err" onclick="onRadixSwitch(this)">H</button>
+            <a class="headerlink" href="#i2c_bus_err" title="Permalink to this row"></a>
+        </td>
+    </tr>
+    <tr id="i2c_timeout">
+        <td>[6]</td>
+        <td><a href="#i2c_timeout.desc">i2c_timeout</a></td>
+        <td>
+            <span title='Readable and Writable'>rw</span></td>
+        <td>0x0
+        </td>
+        <td>
+            <input id="_FieldValueTesteri2c_timeout" class="field-value-tester"
+                type="text" autocomplete="off"
+                data-name="i2c_timeout" oninput="onDecodedFieldInput(this)"/>
+        </td>
+        <td>I2C_TIMEOUT</td>
+        <td>
+            <button type="button" id="_RadixButtoni2c_timeout" class="radix-button"
+                title="Switch radix" aria-label="Switch radix"
+                data-name="i2c_timeout" onclick="onRadixSwitch(this)">H</button>
+            <a class="headerlink" href="#i2c_timeout" title="Permalink to this row"></a>
+        </td>
+    </tr>
+    <tr id="i2c_nack">
+        <td>[5]</td>
+        <td><a href="#i2c_nack.desc">i2c_nack</a></td>
+        <td>
+            <span title='Readable and Writable'>rw</span></td>
+        <td>0x0
+        </td>
+        <td>
+            <input id="_FieldValueTesteri2c_nack" class="field-value-tester"
+                type="text" autocomplete="off"
+                data-name="i2c_nack" oninput="onDecodedFieldInput(this)"/>
+        </td>
+        <td>I2C_NACK</td>
+        <td>
+            <button type="button" id="_RadixButtoni2c_nack" class="radix-button"
+                title="Switch radix" aria-label="Switch radix"
+                data-name="i2c_nack" onclick="onRadixSwitch(this)">H</button>
+            <a class="headerlink" href="#i2c_nack" title="Permalink to this row"></a>
         </td>
     </tr>
     <tr id="spi_addr_err">
@@ -109,24 +149,24 @@
             <a class="headerlink" href="#aging_event" title="Permalink to this row"></a>
         </td>
     </tr>
-    <tr id="fifo_underflow">
+    <tr id="reserved_1">
         <td>[1]</td>
-        <td><a href="#fifo_underflow.desc">fifo_underflow</a></td>
+        <td><a href="#reserved_1.desc">reserved_1</a></td>
         <td>
             <span title='Readable and Writable'>rw</span></td>
         <td>0x0
         </td>
         <td>
-            <input id="_FieldValueTesterfifo_underflow" class="field-value-tester"
+            <input id="_FieldValueTesterreserved_1" class="field-value-tester"
                 type="text" autocomplete="off"
-                data-name="fifo_underflow" oninput="onDecodedFieldInput(this)"/>
+                data-name="reserved_1" oninput="onDecodedFieldInput(this)"/>
         </td>
-        <td>FIFO_UNDERFLOW</td>
+        <td>RESERVED</td>
         <td>
-            <button type="button" id="_RadixButtonfifo_underflow" class="radix-button"
+            <button type="button" id="_RadixButtonreserved_1" class="radix-button"
                 title="Switch radix" aria-label="Switch radix"
-                data-name="fifo_underflow" onclick="onRadixSwitch(this)">H</button>
-            <a class="headerlink" href="#fifo_underflow" title="Permalink to this row"></a>
+                data-name="reserved_1" onclick="onRadixSwitch(this)">H</button>
+            <a class="headerlink" href="#reserved_1" title="Permalink to this row"></a>
         </td>
     </tr>
     <tr id="fifo_overflow">
@@ -159,11 +199,25 @@
 </p>
 <hr/><h2>Field Descriptions</h2>
 
-<h3 id="reserved.desc">reserved - RESERVED
-    <a class="headerlink" href="#reserved.desc" title="Permalink to this headline"></a>
+<h3 id="i2c_bus_err.desc">i2c_bus_err - I2C_BUS_ERR
+    <a class="headerlink" href="#i2c_bus_err.desc" title="Permalink to this headline"></a>
 </h3>
-<div id="_Content.reserved.desc">
-<p>Зарезервировано</p>
+<div id="_Content.i2c_bus_err.desc">
+<p>Разрешение прерывания по ошибке или зависанию шины I2C</p>
+</div>
+
+<h3 id="i2c_timeout.desc">i2c_timeout - I2C_TIMEOUT
+    <a class="headerlink" href="#i2c_timeout.desc" title="Permalink to this headline"></a>
+</h3>
+<div id="_Content.i2c_timeout.desc">
+<p>Разрешение прерывания по таймауту транзакции I2C</p>
+</div>
+
+<h3 id="i2c_nack.desc">i2c_nack - I2C_NACK
+    <a class="headerlink" href="#i2c_nack.desc" title="Permalink to this headline"></a>
+</h3>
+<div id="_Content.i2c_nack.desc">
+<p>Разрешение прерывания по NACK от датчика I2C</p>
 </div>
 
 <h3 id="spi_addr_err.desc">spi_addr_err - SPI_ADDR_ERR
@@ -187,17 +241,17 @@
 <p>Разрешение прерывания по циклу ротации/затухания</p>
 </div>
 
-<h3 id="fifo_underflow.desc">fifo_underflow - FIFO_UNDERFLOW
-    <a class="headerlink" href="#fifo_underflow.desc" title="Permalink to this headline"></a>
+<h3 id="reserved_1.desc">reserved_1 - RESERVED
+    <a class="headerlink" href="#reserved_1.desc" title="Permalink to this headline"></a>
 </h3>
-<div id="_Content.fifo_underflow.desc">
-<p>Разрешение прерывания по чтению из пустого FIFO</p>
+<div id="_Content.reserved_1.desc">
+<p>Зарезервировано</p>
 </div>
 
 <h3 id="fifo_overflow.desc">fifo_overflow - FIFO_OVERFLOW
     <a class="headerlink" href="#fifo_overflow.desc" title="Permalink to this headline"></a>
 </h3>
 <div id="_Content.fifo_overflow.desc">
-<p>Разрешение прерывания по переполнению FIFO</p>
+<p>Разрешение прерывания при полном входном FIFO и паузе опроса датчиков</p>
 </div>
 </div>

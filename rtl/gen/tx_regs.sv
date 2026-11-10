@@ -7,7 +7,7 @@ module tx_regs (
 
         input wire s_cpuif_req,
         input wire s_cpuif_req_is_wr,
-        input wire [4:0] s_cpuif_addr,
+        input wire [5:0] s_cpuif_addr,
         input wire [7:0] s_cpuif_wr_data,
         input wire [7:0] s_cpuif_wr_biten,
         output wire s_cpuif_req_stall_wr,
@@ -27,7 +27,7 @@ module tx_regs (
     //--------------------------------------------------------------------------
     logic cpuif_req;
     logic cpuif_req_is_wr;
-    logic [4:0] cpuif_addr;
+    logic [5:0] cpuif_addr;
     logic [7:0] cpuif_wr_data;
     logic [7:0] cpuif_wr_biten;
     logic cpuif_req_stall_wr;
@@ -83,10 +83,22 @@ module tx_regs (
         logic [3:0] CNT_RAW_FRAMES;
         logic [3:0] CNT_SYNC_FRAMES;
         logic [3:0] CNT_BF_FILTERED;
+        logic SDR_CLK_DIV_LO;
+        logic SDR_CLK_DIV_HI;
+        logic I2C_CTRL_REG;
+        logic I2C_CLK_DIV_LO;
+        logic I2C_CLK_DIV_HI;
+        logic I2C_SENSOR_EN;
+        logic I2C_SENSOR_ADDR0;
+        logic I2C_SENSOR_ADDR1;
+        logic I2C_SENSOR_ADDR2;
+        logic I2C_SENSOR_ADDR3;
+        logic I2C_STATUS_REG;
+        logic I2C_TIMEOUT_REG;
     } decoded_reg_strb_t;
     decoded_reg_strb_t decoded_reg_strb;
     logic decoded_err;
-    logic [4:0] decoded_addr;
+    logic [5:0] decoded_addr;
     logic decoded_req;
     logic decoded_req_is_wr;
     logic [7:0] decoded_wr_data;
@@ -97,38 +109,50 @@ module tx_regs (
         automatic logic is_valid_rw;
         is_valid_addr = '1; // No valid address check
         is_valid_rw = '1; // No valid RW check
-        decoded_reg_strb.CTRL_REG = cpuif_req_masked & (cpuif_addr == 5'h0);
-        decoded_reg_strb.MODE_REG = cpuif_req_masked & (cpuif_addr == 5'h1);
-        decoded_reg_strb.AGING_PERIOD_LO = cpuif_req_masked & (cpuif_addr == 5'h2);
-        decoded_reg_strb.AGING_PERIOD_HI = cpuif_req_masked & (cpuif_addr == 5'h3);
-        decoded_reg_strb.BF_CTRL_REG = cpuif_req_masked & (cpuif_addr == 5'h4);
-        decoded_reg_strb.SLRU_CFG_REG = cpuif_req_masked & (cpuif_addr == 5'h5);
-        decoded_reg_strb.CMD_REG = cpuif_req_masked & (cpuif_addr == 5'h6);
-        decoded_reg_strb.STATUS_REG = cpuif_req_masked & (cpuif_addr == 5'h7) & !cpuif_req_is_wr;
-        decoded_reg_strb.INT_ENABLE_REG = cpuif_req_masked & (cpuif_addr == 5'h8);
-        decoded_reg_strb.INT_STATUS_REG = cpuif_req_masked & (cpuif_addr == 5'h9);
-        decoded_reg_strb.CRC_CFG_REG = cpuif_req_masked & (cpuif_addr == 5'ha);
-        decoded_reg_strb.HIT_RATE_THRESH_REG = cpuif_req_masked & (cpuif_addr == 5'hb);
-        decoded_reg_strb.CNT_TOTAL_WORDS[0] = cpuif_req_masked & (cpuif_addr == 5'hc) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_TOTAL_WORDS[1] = cpuif_req_masked & (cpuif_addr == 5'hd) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_TOTAL_WORDS[2] = cpuif_req_masked & (cpuif_addr == 5'he) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_TOTAL_WORDS[3] = cpuif_req_masked & (cpuif_addr == 5'hf) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_KEY_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 5'h10) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_KEY_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 5'h11) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_KEY_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 5'h12) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_KEY_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 5'h13) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_RAW_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 5'h14) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_RAW_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 5'h15) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_RAW_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 5'h16) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_RAW_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 5'h17) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_SYNC_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 5'h18) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_SYNC_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 5'h19) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_SYNC_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 5'h1a) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_SYNC_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 5'h1b) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_BF_FILTERED[0] = cpuif_req_masked & (cpuif_addr == 5'h1c) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_BF_FILTERED[1] = cpuif_req_masked & (cpuif_addr == 5'h1d) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_BF_FILTERED[2] = cpuif_req_masked & (cpuif_addr == 5'h1e) & !cpuif_req_is_wr;
-        decoded_reg_strb.CNT_BF_FILTERED[3] = cpuif_req_masked & (cpuif_addr == 5'h1f) & !cpuif_req_is_wr;
+        decoded_reg_strb.CTRL_REG = cpuif_req_masked & (cpuif_addr == 6'h0);
+        decoded_reg_strb.MODE_REG = cpuif_req_masked & (cpuif_addr == 6'h1);
+        decoded_reg_strb.AGING_PERIOD_LO = cpuif_req_masked & (cpuif_addr == 6'h2);
+        decoded_reg_strb.AGING_PERIOD_HI = cpuif_req_masked & (cpuif_addr == 6'h3);
+        decoded_reg_strb.BF_CTRL_REG = cpuif_req_masked & (cpuif_addr == 6'h4);
+        decoded_reg_strb.SLRU_CFG_REG = cpuif_req_masked & (cpuif_addr == 6'h5);
+        decoded_reg_strb.CMD_REG = cpuif_req_masked & (cpuif_addr == 6'h6);
+        decoded_reg_strb.STATUS_REG = cpuif_req_masked & (cpuif_addr == 6'h7) & !cpuif_req_is_wr;
+        decoded_reg_strb.INT_ENABLE_REG = cpuif_req_masked & (cpuif_addr == 6'h8);
+        decoded_reg_strb.INT_STATUS_REG = cpuif_req_masked & (cpuif_addr == 6'h9);
+        decoded_reg_strb.CRC_CFG_REG = cpuif_req_masked & (cpuif_addr == 6'ha);
+        decoded_reg_strb.HIT_RATE_THRESH_REG = cpuif_req_masked & (cpuif_addr == 6'hb);
+        decoded_reg_strb.CNT_TOTAL_WORDS[0] = cpuif_req_masked & (cpuif_addr == 6'hc) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_TOTAL_WORDS[1] = cpuif_req_masked & (cpuif_addr == 6'hd) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_TOTAL_WORDS[2] = cpuif_req_masked & (cpuif_addr == 6'he) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_TOTAL_WORDS[3] = cpuif_req_masked & (cpuif_addr == 6'hf) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_KEY_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h10) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_KEY_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h11) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_KEY_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h12) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_KEY_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h13) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_RAW_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h14) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_RAW_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h15) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_RAW_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h16) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_RAW_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h17) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_SYNC_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h18) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_SYNC_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h19) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_SYNC_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h1a) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_SYNC_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h1b) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_BF_FILTERED[0] = cpuif_req_masked & (cpuif_addr == 6'h1c) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_BF_FILTERED[1] = cpuif_req_masked & (cpuif_addr == 6'h1d) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_BF_FILTERED[2] = cpuif_req_masked & (cpuif_addr == 6'h1e) & !cpuif_req_is_wr;
+        decoded_reg_strb.CNT_BF_FILTERED[3] = cpuif_req_masked & (cpuif_addr == 6'h1f) & !cpuif_req_is_wr;
+        decoded_reg_strb.SDR_CLK_DIV_LO = cpuif_req_masked & (cpuif_addr == 6'h20);
+        decoded_reg_strb.SDR_CLK_DIV_HI = cpuif_req_masked & (cpuif_addr == 6'h21);
+        decoded_reg_strb.I2C_CTRL_REG = cpuif_req_masked & (cpuif_addr == 6'h22);
+        decoded_reg_strb.I2C_CLK_DIV_LO = cpuif_req_masked & (cpuif_addr == 6'h23);
+        decoded_reg_strb.I2C_CLK_DIV_HI = cpuif_req_masked & (cpuif_addr == 6'h24);
+        decoded_reg_strb.I2C_SENSOR_EN = cpuif_req_masked & (cpuif_addr == 6'h25);
+        decoded_reg_strb.I2C_SENSOR_ADDR0 = cpuif_req_masked & (cpuif_addr == 6'h26);
+        decoded_reg_strb.I2C_SENSOR_ADDR1 = cpuif_req_masked & (cpuif_addr == 6'h27);
+        decoded_reg_strb.I2C_SENSOR_ADDR2 = cpuif_req_masked & (cpuif_addr == 6'h28);
+        decoded_reg_strb.I2C_SENSOR_ADDR3 = cpuif_req_masked & (cpuif_addr == 6'h29);
+        decoded_reg_strb.I2C_STATUS_REG = cpuif_req_masked & (cpuif_addr == 6'h2a) & !cpuif_req_is_wr;
+        decoded_reg_strb.I2C_TIMEOUT_REG = cpuif_req_masked & (cpuif_addr == 6'h2b);
         decoded_err = '0;
     end
 
@@ -237,7 +261,7 @@ module tx_regs (
             struct {
                 logic next;
                 logic load_next;
-            } fifo_underflow;
+            } reserved_1;
             struct {
                 logic next;
                 logic load_next;
@@ -247,9 +271,21 @@ module tx_regs (
                 logic load_next;
             } high_hit_rate;
             struct {
-                logic [3:0] next;
+                logic next;
                 logic load_next;
-            } reserved;
+            } spi_addr_err;
+            struct {
+                logic next;
+                logic load_next;
+            } i2c_nack;
+            struct {
+                logic next;
+                logic load_next;
+            } i2c_timeout;
+            struct {
+                logic next;
+                logic load_next;
+            } i2c_bus_err;
         } INT_ENABLE_REG;
         struct {
             struct {
@@ -259,7 +295,7 @@ module tx_regs (
             struct {
                 logic next;
                 logic load_next;
-            } fifo_underflow;
+            } reserved_1;
             struct {
                 logic next;
                 logic load_next;
@@ -269,9 +305,21 @@ module tx_regs (
                 logic load_next;
             } high_hit_rate;
             struct {
-                logic [3:0] next;
+                logic next;
                 logic load_next;
-            } reserved;
+            } spi_addr_err;
+            struct {
+                logic next;
+                logic load_next;
+            } i2c_nack;
+            struct {
+                logic next;
+                logic load_next;
+            } i2c_timeout;
+            struct {
+                logic next;
+                logic load_next;
+            } i2c_bus_err;
         } INT_STATUS_REG;
         struct {
             struct {
@@ -299,44 +347,98 @@ module tx_regs (
         } HIT_RATE_THRESH_REG;
         struct {
             struct {
-                logic [31:0] next;
+                logic [7:0] next;
                 logic load_next;
-                logic incrthreshold;
-                logic overflow;
             } val;
-        } CNT_TOTAL_WORDS;
+        } SDR_CLK_DIV_LO;
         struct {
             struct {
-                logic [31:0] next;
+                logic [7:0] next;
                 logic load_next;
-                logic incrthreshold;
-                logic overflow;
             } val;
-        } CNT_KEY_FRAMES;
+        } SDR_CLK_DIV_HI;
         struct {
             struct {
-                logic [31:0] next;
+                logic next;
                 logic load_next;
-                logic incrthreshold;
-                logic overflow;
-            } val;
-        } CNT_RAW_FRAMES;
+            } i2c_en;
+            struct {
+                logic next;
+                logic load_next;
+            } poll_en;
+            struct {
+                logic [5:0] next;
+                logic load_next;
+            } reserved;
+        } I2C_CTRL_REG;
         struct {
             struct {
-                logic [31:0] next;
+                logic [7:0] next;
                 logic load_next;
-                logic incrthreshold;
-                logic overflow;
             } val;
-        } CNT_SYNC_FRAMES;
+        } I2C_CLK_DIV_LO;
         struct {
             struct {
-                logic [31:0] next;
+                logic [7:0] next;
                 logic load_next;
-                logic incrthreshold;
-                logic overflow;
             } val;
-        } CNT_BF_FILTERED;
+        } I2C_CLK_DIV_HI;
+        struct {
+            struct {
+                logic [3:0] next;
+                logic load_next;
+            } sensor_en;
+            struct {
+                logic [3:0] next;
+                logic load_next;
+            } reserved;
+        } I2C_SENSOR_EN;
+        struct {
+            struct {
+                logic [6:0] next;
+                logic load_next;
+            } addr;
+            struct {
+                logic next;
+                logic load_next;
+            } reserved;
+        } I2C_SENSOR_ADDR0;
+        struct {
+            struct {
+                logic [6:0] next;
+                logic load_next;
+            } addr;
+            struct {
+                logic next;
+                logic load_next;
+            } reserved;
+        } I2C_SENSOR_ADDR1;
+        struct {
+            struct {
+                logic [6:0] next;
+                logic load_next;
+            } addr;
+            struct {
+                logic next;
+                logic load_next;
+            } reserved;
+        } I2C_SENSOR_ADDR2;
+        struct {
+            struct {
+                logic [6:0] next;
+                logic load_next;
+            } addr;
+            struct {
+                logic next;
+                logic load_next;
+            } reserved;
+        } I2C_SENSOR_ADDR3;
+        struct {
+            struct {
+                logic [7:0] next;
+                logic load_next;
+            } val;
+        } I2C_TIMEOUT_REG;
     } field_combo_t;
     field_combo_t field_combo;
 
@@ -415,7 +517,7 @@ module tx_regs (
             } fifo_overflow;
             struct {
                 logic value;
-            } fifo_underflow;
+            } reserved_1;
             struct {
                 logic value;
             } aging_event;
@@ -423,8 +525,17 @@ module tx_regs (
                 logic value;
             } high_hit_rate;
             struct {
-                logic [3:0] value;
-            } reserved;
+                logic value;
+            } spi_addr_err;
+            struct {
+                logic value;
+            } i2c_nack;
+            struct {
+                logic value;
+            } i2c_timeout;
+            struct {
+                logic value;
+            } i2c_bus_err;
         } INT_ENABLE_REG;
         struct {
             struct {
@@ -432,7 +543,7 @@ module tx_regs (
             } fifo_overflow;
             struct {
                 logic value;
-            } fifo_underflow;
+            } reserved_1;
             struct {
                 logic value;
             } aging_event;
@@ -440,8 +551,17 @@ module tx_regs (
                 logic value;
             } high_hit_rate;
             struct {
-                logic [3:0] value;
-            } reserved;
+                logic value;
+            } spi_addr_err;
+            struct {
+                logic value;
+            } i2c_nack;
+            struct {
+                logic value;
+            } i2c_timeout;
+            struct {
+                logic value;
+            } i2c_bus_err;
         } INT_STATUS_REG;
         struct {
             struct {
@@ -464,29 +584,80 @@ module tx_regs (
         } HIT_RATE_THRESH_REG;
         struct {
             struct {
-                logic [31:0] value;
+                logic [7:0] value;
             } val;
-        } CNT_TOTAL_WORDS;
+        } SDR_CLK_DIV_LO;
         struct {
             struct {
-                logic [31:0] value;
+                logic [7:0] value;
             } val;
-        } CNT_KEY_FRAMES;
+        } SDR_CLK_DIV_HI;
         struct {
             struct {
-                logic [31:0] value;
-            } val;
-        } CNT_RAW_FRAMES;
+                logic value;
+            } i2c_en;
+            struct {
+                logic value;
+            } poll_en;
+            struct {
+                logic [5:0] value;
+            } reserved;
+        } I2C_CTRL_REG;
         struct {
             struct {
-                logic [31:0] value;
+                logic [7:0] value;
             } val;
-        } CNT_SYNC_FRAMES;
+        } I2C_CLK_DIV_LO;
         struct {
             struct {
-                logic [31:0] value;
+                logic [7:0] value;
             } val;
-        } CNT_BF_FILTERED;
+        } I2C_CLK_DIV_HI;
+        struct {
+            struct {
+                logic [3:0] value;
+            } sensor_en;
+            struct {
+                logic [3:0] value;
+            } reserved;
+        } I2C_SENSOR_EN;
+        struct {
+            struct {
+                logic [6:0] value;
+            } addr;
+            struct {
+                logic value;
+            } reserved;
+        } I2C_SENSOR_ADDR0;
+        struct {
+            struct {
+                logic [6:0] value;
+            } addr;
+            struct {
+                logic value;
+            } reserved;
+        } I2C_SENSOR_ADDR1;
+        struct {
+            struct {
+                logic [6:0] value;
+            } addr;
+            struct {
+                logic value;
+            } reserved;
+        } I2C_SENSOR_ADDR2;
+        struct {
+            struct {
+                logic [6:0] value;
+            } addr;
+            struct {
+                logic value;
+            } reserved;
+        } I2C_SENSOR_ADDR3;
+        struct {
+            struct {
+                logic [7:0] value;
+            } val;
+        } I2C_TIMEOUT_REG;
     } field_storage_t;
     field_storage_t field_storage;
 
@@ -939,29 +1110,29 @@ module tx_regs (
         end
     end
     assign hwif_out.INT_ENABLE_REG.fifo_overflow.value = field_storage.INT_ENABLE_REG.fifo_overflow.value;
-    // Field: tx_regs.INT_ENABLE_REG.fifo_underflow
+    // Field: tx_regs.INT_ENABLE_REG.reserved_1
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.INT_ENABLE_REG.fifo_underflow.value;
+        next_c = field_storage.INT_ENABLE_REG.reserved_1.value;
         load_next_c = '0;
         if(decoded_reg_strb.INT_ENABLE_REG && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.INT_ENABLE_REG.fifo_underflow.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
+            next_c = (field_storage.INT_ENABLE_REG.reserved_1.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
             load_next_c = '1;
         end
-        field_combo.INT_ENABLE_REG.fifo_underflow.next = next_c;
-        field_combo.INT_ENABLE_REG.fifo_underflow.load_next = load_next_c;
+        field_combo.INT_ENABLE_REG.reserved_1.next = next_c;
+        field_combo.INT_ENABLE_REG.reserved_1.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.INT_ENABLE_REG.fifo_underflow.value <= 1'h0;
+            field_storage.INT_ENABLE_REG.reserved_1.value <= 1'h0;
         end else begin
-            if(field_combo.INT_ENABLE_REG.fifo_underflow.load_next) begin
-                field_storage.INT_ENABLE_REG.fifo_underflow.value <= field_combo.INT_ENABLE_REG.fifo_underflow.next;
+            if(field_combo.INT_ENABLE_REG.reserved_1.load_next) begin
+                field_storage.INT_ENABLE_REG.reserved_1.value <= field_combo.INT_ENABLE_REG.reserved_1.next;
             end
         end
     end
-    assign hwif_out.INT_ENABLE_REG.fifo_underflow.value = field_storage.INT_ENABLE_REG.fifo_underflow.value;
+    assign hwif_out.INT_ENABLE_REG.reserved_1.value = field_storage.INT_ENABLE_REG.reserved_1.value;
     // Field: tx_regs.INT_ENABLE_REG.aging_event
     always_comb begin
         automatic logic [0:0] next_c;
@@ -1008,29 +1179,98 @@ module tx_regs (
         end
     end
     assign hwif_out.INT_ENABLE_REG.high_hit_rate.value = field_storage.INT_ENABLE_REG.high_hit_rate.value;
-    // Field: tx_regs.INT_ENABLE_REG.reserved
+    // Field: tx_regs.INT_ENABLE_REG.spi_addr_err
     always_comb begin
-        automatic logic [3:0] next_c;
+        automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.INT_ENABLE_REG.reserved.value;
+        next_c = field_storage.INT_ENABLE_REG.spi_addr_err.value;
         load_next_c = '0;
         if(decoded_reg_strb.INT_ENABLE_REG && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.INT_ENABLE_REG.reserved.value & ~decoded_wr_biten[7:4]) | (decoded_wr_data[7:4] & decoded_wr_biten[7:4]);
+            next_c = (field_storage.INT_ENABLE_REG.spi_addr_err.value & ~decoded_wr_biten[4:4]) | (decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
             load_next_c = '1;
         end
-        field_combo.INT_ENABLE_REG.reserved.next = next_c;
-        field_combo.INT_ENABLE_REG.reserved.load_next = load_next_c;
+        field_combo.INT_ENABLE_REG.spi_addr_err.next = next_c;
+        field_combo.INT_ENABLE_REG.spi_addr_err.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.INT_ENABLE_REG.reserved.value <= 4'h0;
+            field_storage.INT_ENABLE_REG.spi_addr_err.value <= 1'h0;
         end else begin
-            if(field_combo.INT_ENABLE_REG.reserved.load_next) begin
-                field_storage.INT_ENABLE_REG.reserved.value <= field_combo.INT_ENABLE_REG.reserved.next;
+            if(field_combo.INT_ENABLE_REG.spi_addr_err.load_next) begin
+                field_storage.INT_ENABLE_REG.spi_addr_err.value <= field_combo.INT_ENABLE_REG.spi_addr_err.next;
             end
         end
     end
-    assign hwif_out.INT_ENABLE_REG.reserved.value = field_storage.INT_ENABLE_REG.reserved.value;
+    assign hwif_out.INT_ENABLE_REG.spi_addr_err.value = field_storage.INT_ENABLE_REG.spi_addr_err.value;
+    // Field: tx_regs.INT_ENABLE_REG.i2c_nack
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.INT_ENABLE_REG.i2c_nack.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.INT_ENABLE_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.INT_ENABLE_REG.i2c_nack.value & ~decoded_wr_biten[5:5]) | (decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
+            load_next_c = '1;
+        end
+        field_combo.INT_ENABLE_REG.i2c_nack.next = next_c;
+        field_combo.INT_ENABLE_REG.i2c_nack.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.INT_ENABLE_REG.i2c_nack.value <= 1'h0;
+        end else begin
+            if(field_combo.INT_ENABLE_REG.i2c_nack.load_next) begin
+                field_storage.INT_ENABLE_REG.i2c_nack.value <= field_combo.INT_ENABLE_REG.i2c_nack.next;
+            end
+        end
+    end
+    assign hwif_out.INT_ENABLE_REG.i2c_nack.value = field_storage.INT_ENABLE_REG.i2c_nack.value;
+    // Field: tx_regs.INT_ENABLE_REG.i2c_timeout
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.INT_ENABLE_REG.i2c_timeout.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.INT_ENABLE_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.INT_ENABLE_REG.i2c_timeout.value & ~decoded_wr_biten[6:6]) | (decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
+            load_next_c = '1;
+        end
+        field_combo.INT_ENABLE_REG.i2c_timeout.next = next_c;
+        field_combo.INT_ENABLE_REG.i2c_timeout.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.INT_ENABLE_REG.i2c_timeout.value <= 1'h0;
+        end else begin
+            if(field_combo.INT_ENABLE_REG.i2c_timeout.load_next) begin
+                field_storage.INT_ENABLE_REG.i2c_timeout.value <= field_combo.INT_ENABLE_REG.i2c_timeout.next;
+            end
+        end
+    end
+    assign hwif_out.INT_ENABLE_REG.i2c_timeout.value = field_storage.INT_ENABLE_REG.i2c_timeout.value;
+    // Field: tx_regs.INT_ENABLE_REG.i2c_bus_err
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.INT_ENABLE_REG.i2c_bus_err.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.INT_ENABLE_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.INT_ENABLE_REG.i2c_bus_err.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
+            load_next_c = '1;
+        end
+        field_combo.INT_ENABLE_REG.i2c_bus_err.next = next_c;
+        field_combo.INT_ENABLE_REG.i2c_bus_err.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.INT_ENABLE_REG.i2c_bus_err.value <= 1'h0;
+        end else begin
+            if(field_combo.INT_ENABLE_REG.i2c_bus_err.load_next) begin
+                field_storage.INT_ENABLE_REG.i2c_bus_err.value <= field_combo.INT_ENABLE_REG.i2c_bus_err.next;
+            end
+        end
+    end
+    assign hwif_out.INT_ENABLE_REG.i2c_bus_err.value = field_storage.INT_ENABLE_REG.i2c_bus_err.value;
     // Field: tx_regs.INT_STATUS_REG.fifo_overflow
     always_comb begin
         automatic logic [0:0] next_c;
@@ -1057,32 +1297,29 @@ module tx_regs (
         end
     end
     assign hwif_out.INT_STATUS_REG.fifo_overflow.value = field_storage.INT_STATUS_REG.fifo_overflow.value;
-    // Field: tx_regs.INT_STATUS_REG.fifo_underflow
+    // Field: tx_regs.INT_STATUS_REG.reserved_1
     always_comb begin
         automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.INT_STATUS_REG.fifo_underflow.value;
+        next_c = field_storage.INT_STATUS_REG.reserved_1.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
-            next_c = field_storage.INT_STATUS_REG.fifo_underflow.value & ~(decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
-            load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.INT_STATUS_REG.fifo_underflow.next;
+        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.INT_STATUS_REG.reserved_1.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
             load_next_c = '1;
         end
-        field_combo.INT_STATUS_REG.fifo_underflow.next = next_c;
-        field_combo.INT_STATUS_REG.fifo_underflow.load_next = load_next_c;
+        field_combo.INT_STATUS_REG.reserved_1.next = next_c;
+        field_combo.INT_STATUS_REG.reserved_1.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.INT_STATUS_REG.fifo_underflow.value <= 1'h0;
+            field_storage.INT_STATUS_REG.reserved_1.value <= 1'h0;
         end else begin
-            if(field_combo.INT_STATUS_REG.fifo_underflow.load_next) begin
-                field_storage.INT_STATUS_REG.fifo_underflow.value <= field_combo.INT_STATUS_REG.fifo_underflow.next;
+            if(field_combo.INT_STATUS_REG.reserved_1.load_next) begin
+                field_storage.INT_STATUS_REG.reserved_1.value <= field_combo.INT_STATUS_REG.reserved_1.next;
             end
         end
     end
-    assign hwif_out.INT_STATUS_REG.fifo_underflow.value = field_storage.INT_STATUS_REG.fifo_underflow.value;
+    assign hwif_out.INT_STATUS_REG.reserved_1.value = field_storage.INT_STATUS_REG.reserved_1.value;
     // Field: tx_regs.INT_STATUS_REG.aging_event
     always_comb begin
         automatic logic [0:0] next_c;
@@ -1135,29 +1372,110 @@ module tx_regs (
         end
     end
     assign hwif_out.INT_STATUS_REG.high_hit_rate.value = field_storage.INT_STATUS_REG.high_hit_rate.value;
-    // Field: tx_regs.INT_STATUS_REG.reserved
+    // Field: tx_regs.INT_STATUS_REG.spi_addr_err
     always_comb begin
-        automatic logic [3:0] next_c;
+        automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.INT_STATUS_REG.reserved.value;
+        next_c = field_storage.INT_STATUS_REG.spi_addr_err.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write
-            next_c = (field_storage.INT_STATUS_REG.reserved.value & ~decoded_wr_biten[7:4]) | (decoded_wr_data[7:4] & decoded_wr_biten[7:4]);
+        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.spi_addr_err.value & ~(decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
+            load_next_c = '1;
+        end else begin // HW Write
+            next_c = hwif_in.INT_STATUS_REG.spi_addr_err.next;
             load_next_c = '1;
         end
-        field_combo.INT_STATUS_REG.reserved.next = next_c;
-        field_combo.INT_STATUS_REG.reserved.load_next = load_next_c;
+        field_combo.INT_STATUS_REG.spi_addr_err.next = next_c;
+        field_combo.INT_STATUS_REG.spi_addr_err.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.INT_STATUS_REG.reserved.value <= 4'h0;
+            field_storage.INT_STATUS_REG.spi_addr_err.value <= 1'h0;
         end else begin
-            if(field_combo.INT_STATUS_REG.reserved.load_next) begin
-                field_storage.INT_STATUS_REG.reserved.value <= field_combo.INT_STATUS_REG.reserved.next;
+            if(field_combo.INT_STATUS_REG.spi_addr_err.load_next) begin
+                field_storage.INT_STATUS_REG.spi_addr_err.value <= field_combo.INT_STATUS_REG.spi_addr_err.next;
             end
         end
     end
-    assign hwif_out.INT_STATUS_REG.reserved.value = field_storage.INT_STATUS_REG.reserved.value;
+    assign hwif_out.INT_STATUS_REG.spi_addr_err.value = field_storage.INT_STATUS_REG.spi_addr_err.value;
+    // Field: tx_regs.INT_STATUS_REG.i2c_nack
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.INT_STATUS_REG.i2c_nack.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.i2c_nack.value & ~(decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
+            load_next_c = '1;
+        end else begin // HW Write
+            next_c = hwif_in.INT_STATUS_REG.i2c_nack.next;
+            load_next_c = '1;
+        end
+        field_combo.INT_STATUS_REG.i2c_nack.next = next_c;
+        field_combo.INT_STATUS_REG.i2c_nack.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.INT_STATUS_REG.i2c_nack.value <= 1'h0;
+        end else begin
+            if(field_combo.INT_STATUS_REG.i2c_nack.load_next) begin
+                field_storage.INT_STATUS_REG.i2c_nack.value <= field_combo.INT_STATUS_REG.i2c_nack.next;
+            end
+        end
+    end
+    assign hwif_out.INT_STATUS_REG.i2c_nack.value = field_storage.INT_STATUS_REG.i2c_nack.value;
+    // Field: tx_regs.INT_STATUS_REG.i2c_timeout
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.INT_STATUS_REG.i2c_timeout.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.i2c_timeout.value & ~(decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
+            load_next_c = '1;
+        end else begin // HW Write
+            next_c = hwif_in.INT_STATUS_REG.i2c_timeout.next;
+            load_next_c = '1;
+        end
+        field_combo.INT_STATUS_REG.i2c_timeout.next = next_c;
+        field_combo.INT_STATUS_REG.i2c_timeout.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.INT_STATUS_REG.i2c_timeout.value <= 1'h0;
+        end else begin
+            if(field_combo.INT_STATUS_REG.i2c_timeout.load_next) begin
+                field_storage.INT_STATUS_REG.i2c_timeout.value <= field_combo.INT_STATUS_REG.i2c_timeout.next;
+            end
+        end
+    end
+    assign hwif_out.INT_STATUS_REG.i2c_timeout.value = field_storage.INT_STATUS_REG.i2c_timeout.value;
+    // Field: tx_regs.INT_STATUS_REG.i2c_bus_err
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.INT_STATUS_REG.i2c_bus_err.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.i2c_bus_err.value & ~(decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
+            load_next_c = '1;
+        end else begin // HW Write
+            next_c = hwif_in.INT_STATUS_REG.i2c_bus_err.next;
+            load_next_c = '1;
+        end
+        field_combo.INT_STATUS_REG.i2c_bus_err.next = next_c;
+        field_combo.INT_STATUS_REG.i2c_bus_err.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.INT_STATUS_REG.i2c_bus_err.value <= 1'h0;
+        end else begin
+            if(field_combo.INT_STATUS_REG.i2c_bus_err.load_next) begin
+                field_storage.INT_STATUS_REG.i2c_bus_err.value <= field_combo.INT_STATUS_REG.i2c_bus_err.next;
+            end
+        end
+    end
+    assign hwif_out.INT_STATUS_REG.i2c_bus_err.value = field_storage.INT_STATUS_REG.i2c_bus_err.value;
     // Field: tx_regs.CRC_CFG_REG.crc_en
     always_comb begin
         automatic logic [0:0] next_c;
@@ -1273,156 +1591,420 @@ module tx_regs (
         end
     end
     assign hwif_out.HIT_RATE_THRESH_REG.thresh_val.value = field_storage.HIT_RATE_THRESH_REG.thresh_val.value;
-    // Field: tx_regs.CNT_TOTAL_WORDS.val
+    // Field: tx_regs.SDR_CLK_DIV_LO.val
     always_comb begin
-        automatic logic [31:0] next_c;
+        automatic logic [7:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.CNT_TOTAL_WORDS.val.value;
+        next_c = field_storage.SDR_CLK_DIV_LO.val.value;
         load_next_c = '0;
-        
-        // HW Write
-        next_c = hwif_in.CNT_TOTAL_WORDS.val.next;
-        load_next_c = '1;
-        if(hwif_in.CNT_TOTAL_WORDS.val.incr) begin // increment
-            field_combo.CNT_TOTAL_WORDS.val.overflow = (((33)'(next_c) + 32'h1) > 33'hffffffff);
-            next_c = next_c + 32'h1;
+        if(decoded_reg_strb.SDR_CLK_DIV_LO && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.SDR_CLK_DIV_LO.val.value & ~decoded_wr_biten[7:0]) | (decoded_wr_data[7:0] & decoded_wr_biten[7:0]);
             load_next_c = '1;
-        end else begin
-            field_combo.CNT_TOTAL_WORDS.val.overflow = '0;
         end
-        field_combo.CNT_TOTAL_WORDS.val.incrthreshold = (field_storage.CNT_TOTAL_WORDS.val.value >= 32'hffffffff);
-        field_combo.CNT_TOTAL_WORDS.val.next = next_c;
-        field_combo.CNT_TOTAL_WORDS.val.load_next = load_next_c;
+        field_combo.SDR_CLK_DIV_LO.val.next = next_c;
+        field_combo.SDR_CLK_DIV_LO.val.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.CNT_TOTAL_WORDS.val.value <= 32'h0;
+            field_storage.SDR_CLK_DIV_LO.val.value <= 8'h0;
         end else begin
-            if(field_combo.CNT_TOTAL_WORDS.val.load_next) begin
-                field_storage.CNT_TOTAL_WORDS.val.value <= field_combo.CNT_TOTAL_WORDS.val.next;
+            if(field_combo.SDR_CLK_DIV_LO.val.load_next) begin
+                field_storage.SDR_CLK_DIV_LO.val.value <= field_combo.SDR_CLK_DIV_LO.val.next;
             end
         end
     end
-    // Field: tx_regs.CNT_KEY_FRAMES.val
+    assign hwif_out.SDR_CLK_DIV_LO.val.value = field_storage.SDR_CLK_DIV_LO.val.value;
+    // Field: tx_regs.SDR_CLK_DIV_HI.val
     always_comb begin
-        automatic logic [31:0] next_c;
+        automatic logic [7:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.CNT_KEY_FRAMES.val.value;
+        next_c = field_storage.SDR_CLK_DIV_HI.val.value;
         load_next_c = '0;
-        
-        // HW Write
-        next_c = hwif_in.CNT_KEY_FRAMES.val.next;
-        load_next_c = '1;
-        if(hwif_in.CNT_KEY_FRAMES.val.incr) begin // increment
-            field_combo.CNT_KEY_FRAMES.val.overflow = (((33)'(next_c) + 32'h1) > 33'hffffffff);
-            next_c = next_c + 32'h1;
+        if(decoded_reg_strb.SDR_CLK_DIV_HI && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.SDR_CLK_DIV_HI.val.value & ~decoded_wr_biten[7:0]) | (decoded_wr_data[7:0] & decoded_wr_biten[7:0]);
             load_next_c = '1;
-        end else begin
-            field_combo.CNT_KEY_FRAMES.val.overflow = '0;
         end
-        field_combo.CNT_KEY_FRAMES.val.incrthreshold = (field_storage.CNT_KEY_FRAMES.val.value >= 32'hffffffff);
-        field_combo.CNT_KEY_FRAMES.val.next = next_c;
-        field_combo.CNT_KEY_FRAMES.val.load_next = load_next_c;
+        field_combo.SDR_CLK_DIV_HI.val.next = next_c;
+        field_combo.SDR_CLK_DIV_HI.val.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.CNT_KEY_FRAMES.val.value <= 32'h0;
+            field_storage.SDR_CLK_DIV_HI.val.value <= 8'h0;
         end else begin
-            if(field_combo.CNT_KEY_FRAMES.val.load_next) begin
-                field_storage.CNT_KEY_FRAMES.val.value <= field_combo.CNT_KEY_FRAMES.val.next;
+            if(field_combo.SDR_CLK_DIV_HI.val.load_next) begin
+                field_storage.SDR_CLK_DIV_HI.val.value <= field_combo.SDR_CLK_DIV_HI.val.next;
             end
         end
     end
-    // Field: tx_regs.CNT_RAW_FRAMES.val
+    assign hwif_out.SDR_CLK_DIV_HI.val.value = field_storage.SDR_CLK_DIV_HI.val.value;
+    // Field: tx_regs.I2C_CTRL_REG.i2c_en
     always_comb begin
-        automatic logic [31:0] next_c;
+        automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.CNT_RAW_FRAMES.val.value;
+        next_c = field_storage.I2C_CTRL_REG.i2c_en.value;
         load_next_c = '0;
-        
-        // HW Write
-        next_c = hwif_in.CNT_RAW_FRAMES.val.next;
-        load_next_c = '1;
-        if(hwif_in.CNT_RAW_FRAMES.val.incr) begin // increment
-            field_combo.CNT_RAW_FRAMES.val.overflow = (((33)'(next_c) + 32'h1) > 33'hffffffff);
-            next_c = next_c + 32'h1;
+        if(decoded_reg_strb.I2C_CTRL_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_CTRL_REG.i2c_en.value & ~decoded_wr_biten[0:0]) | (decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
-        end else begin
-            field_combo.CNT_RAW_FRAMES.val.overflow = '0;
         end
-        field_combo.CNT_RAW_FRAMES.val.incrthreshold = (field_storage.CNT_RAW_FRAMES.val.value >= 32'hffffffff);
-        field_combo.CNT_RAW_FRAMES.val.next = next_c;
-        field_combo.CNT_RAW_FRAMES.val.load_next = load_next_c;
+        field_combo.I2C_CTRL_REG.i2c_en.next = next_c;
+        field_combo.I2C_CTRL_REG.i2c_en.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.CNT_RAW_FRAMES.val.value <= 32'h0;
+            field_storage.I2C_CTRL_REG.i2c_en.value <= 1'h0;
         end else begin
-            if(field_combo.CNT_RAW_FRAMES.val.load_next) begin
-                field_storage.CNT_RAW_FRAMES.val.value <= field_combo.CNT_RAW_FRAMES.val.next;
+            if(field_combo.I2C_CTRL_REG.i2c_en.load_next) begin
+                field_storage.I2C_CTRL_REG.i2c_en.value <= field_combo.I2C_CTRL_REG.i2c_en.next;
             end
         end
     end
-    // Field: tx_regs.CNT_SYNC_FRAMES.val
+    assign hwif_out.I2C_CTRL_REG.i2c_en.value = field_storage.I2C_CTRL_REG.i2c_en.value;
+    // Field: tx_regs.I2C_CTRL_REG.poll_en
     always_comb begin
-        automatic logic [31:0] next_c;
+        automatic logic [0:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.CNT_SYNC_FRAMES.val.value;
+        next_c = field_storage.I2C_CTRL_REG.poll_en.value;
         load_next_c = '0;
-        
-        // HW Write
-        next_c = hwif_in.CNT_SYNC_FRAMES.val.next;
-        load_next_c = '1;
-        if(hwif_in.CNT_SYNC_FRAMES.val.incr) begin // increment
-            field_combo.CNT_SYNC_FRAMES.val.overflow = (((33)'(next_c) + 32'h1) > 33'hffffffff);
-            next_c = next_c + 32'h1;
+        if(decoded_reg_strb.I2C_CTRL_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_CTRL_REG.poll_en.value & ~decoded_wr_biten[1:1]) | (decoded_wr_data[1:1] & decoded_wr_biten[1:1]);
             load_next_c = '1;
-        end else begin
-            field_combo.CNT_SYNC_FRAMES.val.overflow = '0;
         end
-        field_combo.CNT_SYNC_FRAMES.val.incrthreshold = (field_storage.CNT_SYNC_FRAMES.val.value >= 32'hffffffff);
-        field_combo.CNT_SYNC_FRAMES.val.next = next_c;
-        field_combo.CNT_SYNC_FRAMES.val.load_next = load_next_c;
+        field_combo.I2C_CTRL_REG.poll_en.next = next_c;
+        field_combo.I2C_CTRL_REG.poll_en.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.CNT_SYNC_FRAMES.val.value <= 32'h0;
+            field_storage.I2C_CTRL_REG.poll_en.value <= 1'h0;
         end else begin
-            if(field_combo.CNT_SYNC_FRAMES.val.load_next) begin
-                field_storage.CNT_SYNC_FRAMES.val.value <= field_combo.CNT_SYNC_FRAMES.val.next;
+            if(field_combo.I2C_CTRL_REG.poll_en.load_next) begin
+                field_storage.I2C_CTRL_REG.poll_en.value <= field_combo.I2C_CTRL_REG.poll_en.next;
             end
         end
     end
-    // Field: tx_regs.CNT_BF_FILTERED.val
+    assign hwif_out.I2C_CTRL_REG.poll_en.value = field_storage.I2C_CTRL_REG.poll_en.value;
+    // Field: tx_regs.I2C_CTRL_REG.reserved
     always_comb begin
-        automatic logic [31:0] next_c;
+        automatic logic [5:0] next_c;
         automatic logic load_next_c;
-        next_c = field_storage.CNT_BF_FILTERED.val.value;
+        next_c = field_storage.I2C_CTRL_REG.reserved.value;
         load_next_c = '0;
-        
-        // HW Write
-        next_c = hwif_in.CNT_BF_FILTERED.val.next;
-        load_next_c = '1;
-        if(hwif_in.CNT_BF_FILTERED.val.incr) begin // increment
-            field_combo.CNT_BF_FILTERED.val.overflow = (((33)'(next_c) + 32'h1) > 33'hffffffff);
-            next_c = next_c + 32'h1;
+        if(decoded_reg_strb.I2C_CTRL_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_CTRL_REG.reserved.value & ~decoded_wr_biten[7:2]) | (decoded_wr_data[7:2] & decoded_wr_biten[7:2]);
             load_next_c = '1;
-        end else begin
-            field_combo.CNT_BF_FILTERED.val.overflow = '0;
         end
-        field_combo.CNT_BF_FILTERED.val.incrthreshold = (field_storage.CNT_BF_FILTERED.val.value >= 32'hffffffff);
-        field_combo.CNT_BF_FILTERED.val.next = next_c;
-        field_combo.CNT_BF_FILTERED.val.load_next = load_next_c;
+        field_combo.I2C_CTRL_REG.reserved.next = next_c;
+        field_combo.I2C_CTRL_REG.reserved.load_next = load_next_c;
     end
     always_ff @(posedge clk) begin
         if(rst) begin
-            field_storage.CNT_BF_FILTERED.val.value <= 32'h0;
+            field_storage.I2C_CTRL_REG.reserved.value <= 6'h0;
         end else begin
-            if(field_combo.CNT_BF_FILTERED.val.load_next) begin
-                field_storage.CNT_BF_FILTERED.val.value <= field_combo.CNT_BF_FILTERED.val.next;
+            if(field_combo.I2C_CTRL_REG.reserved.load_next) begin
+                field_storage.I2C_CTRL_REG.reserved.value <= field_combo.I2C_CTRL_REG.reserved.next;
             end
         end
     end
+    assign hwif_out.I2C_CTRL_REG.reserved.value = field_storage.I2C_CTRL_REG.reserved.value;
+    // Field: tx_regs.I2C_CLK_DIV_LO.val
+    always_comb begin
+        automatic logic [7:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_CLK_DIV_LO.val.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_CLK_DIV_LO && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_CLK_DIV_LO.val.value & ~decoded_wr_biten[7:0]) | (decoded_wr_data[7:0] & decoded_wr_biten[7:0]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_CLK_DIV_LO.val.next = next_c;
+        field_combo.I2C_CLK_DIV_LO.val.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_CLK_DIV_LO.val.value <= 8'hf9;
+        end else begin
+            if(field_combo.I2C_CLK_DIV_LO.val.load_next) begin
+                field_storage.I2C_CLK_DIV_LO.val.value <= field_combo.I2C_CLK_DIV_LO.val.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_CLK_DIV_LO.val.value = field_storage.I2C_CLK_DIV_LO.val.value;
+    // Field: tx_regs.I2C_CLK_DIV_HI.val
+    always_comb begin
+        automatic logic [7:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_CLK_DIV_HI.val.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_CLK_DIV_HI && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_CLK_DIV_HI.val.value & ~decoded_wr_biten[7:0]) | (decoded_wr_data[7:0] & decoded_wr_biten[7:0]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_CLK_DIV_HI.val.next = next_c;
+        field_combo.I2C_CLK_DIV_HI.val.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_CLK_DIV_HI.val.value <= 8'h0;
+        end else begin
+            if(field_combo.I2C_CLK_DIV_HI.val.load_next) begin
+                field_storage.I2C_CLK_DIV_HI.val.value <= field_combo.I2C_CLK_DIV_HI.val.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_CLK_DIV_HI.val.value = field_storage.I2C_CLK_DIV_HI.val.value;
+    // Field: tx_regs.I2C_SENSOR_EN.sensor_en
+    always_comb begin
+        automatic logic [3:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_EN.sensor_en.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_EN && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_EN.sensor_en.value & ~decoded_wr_biten[3:0]) | (decoded_wr_data[3:0] & decoded_wr_biten[3:0]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_EN.sensor_en.next = next_c;
+        field_combo.I2C_SENSOR_EN.sensor_en.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_EN.sensor_en.value <= 4'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_EN.sensor_en.load_next) begin
+                field_storage.I2C_SENSOR_EN.sensor_en.value <= field_combo.I2C_SENSOR_EN.sensor_en.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_EN.sensor_en.value = field_storage.I2C_SENSOR_EN.sensor_en.value;
+    // Field: tx_regs.I2C_SENSOR_EN.reserved
+    always_comb begin
+        automatic logic [3:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_EN.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_EN && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_EN.reserved.value & ~decoded_wr_biten[7:4]) | (decoded_wr_data[7:4] & decoded_wr_biten[7:4]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_EN.reserved.next = next_c;
+        field_combo.I2C_SENSOR_EN.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_EN.reserved.value <= 4'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_EN.reserved.load_next) begin
+                field_storage.I2C_SENSOR_EN.reserved.value <= field_combo.I2C_SENSOR_EN.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_EN.reserved.value = field_storage.I2C_SENSOR_EN.reserved.value;
+    // Field: tx_regs.I2C_SENSOR_ADDR0.addr
+    always_comb begin
+        automatic logic [6:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_ADDR0.addr.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_ADDR0 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_ADDR0.addr.value & ~decoded_wr_biten[6:0]) | (decoded_wr_data[6:0] & decoded_wr_biten[6:0]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_ADDR0.addr.next = next_c;
+        field_combo.I2C_SENSOR_ADDR0.addr.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_ADDR0.addr.value <= 7'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_ADDR0.addr.load_next) begin
+                field_storage.I2C_SENSOR_ADDR0.addr.value <= field_combo.I2C_SENSOR_ADDR0.addr.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_ADDR0.addr.value = field_storage.I2C_SENSOR_ADDR0.addr.value;
+    // Field: tx_regs.I2C_SENSOR_ADDR0.reserved
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_ADDR0.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_ADDR0 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_ADDR0.reserved.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_ADDR0.reserved.next = next_c;
+        field_combo.I2C_SENSOR_ADDR0.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_ADDR0.reserved.value <= 1'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_ADDR0.reserved.load_next) begin
+                field_storage.I2C_SENSOR_ADDR0.reserved.value <= field_combo.I2C_SENSOR_ADDR0.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_ADDR0.reserved.value = field_storage.I2C_SENSOR_ADDR0.reserved.value;
+    // Field: tx_regs.I2C_SENSOR_ADDR1.addr
+    always_comb begin
+        automatic logic [6:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_ADDR1.addr.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_ADDR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_ADDR1.addr.value & ~decoded_wr_biten[6:0]) | (decoded_wr_data[6:0] & decoded_wr_biten[6:0]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_ADDR1.addr.next = next_c;
+        field_combo.I2C_SENSOR_ADDR1.addr.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_ADDR1.addr.value <= 7'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_ADDR1.addr.load_next) begin
+                field_storage.I2C_SENSOR_ADDR1.addr.value <= field_combo.I2C_SENSOR_ADDR1.addr.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_ADDR1.addr.value = field_storage.I2C_SENSOR_ADDR1.addr.value;
+    // Field: tx_regs.I2C_SENSOR_ADDR1.reserved
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_ADDR1.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_ADDR1 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_ADDR1.reserved.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_ADDR1.reserved.next = next_c;
+        field_combo.I2C_SENSOR_ADDR1.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_ADDR1.reserved.value <= 1'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_ADDR1.reserved.load_next) begin
+                field_storage.I2C_SENSOR_ADDR1.reserved.value <= field_combo.I2C_SENSOR_ADDR1.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_ADDR1.reserved.value = field_storage.I2C_SENSOR_ADDR1.reserved.value;
+    // Field: tx_regs.I2C_SENSOR_ADDR2.addr
+    always_comb begin
+        automatic logic [6:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_ADDR2.addr.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_ADDR2 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_ADDR2.addr.value & ~decoded_wr_biten[6:0]) | (decoded_wr_data[6:0] & decoded_wr_biten[6:0]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_ADDR2.addr.next = next_c;
+        field_combo.I2C_SENSOR_ADDR2.addr.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_ADDR2.addr.value <= 7'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_ADDR2.addr.load_next) begin
+                field_storage.I2C_SENSOR_ADDR2.addr.value <= field_combo.I2C_SENSOR_ADDR2.addr.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_ADDR2.addr.value = field_storage.I2C_SENSOR_ADDR2.addr.value;
+    // Field: tx_regs.I2C_SENSOR_ADDR2.reserved
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_ADDR2.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_ADDR2 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_ADDR2.reserved.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_ADDR2.reserved.next = next_c;
+        field_combo.I2C_SENSOR_ADDR2.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_ADDR2.reserved.value <= 1'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_ADDR2.reserved.load_next) begin
+                field_storage.I2C_SENSOR_ADDR2.reserved.value <= field_combo.I2C_SENSOR_ADDR2.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_ADDR2.reserved.value = field_storage.I2C_SENSOR_ADDR2.reserved.value;
+    // Field: tx_regs.I2C_SENSOR_ADDR3.addr
+    always_comb begin
+        automatic logic [6:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_ADDR3.addr.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_ADDR3 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_ADDR3.addr.value & ~decoded_wr_biten[6:0]) | (decoded_wr_data[6:0] & decoded_wr_biten[6:0]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_ADDR3.addr.next = next_c;
+        field_combo.I2C_SENSOR_ADDR3.addr.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_ADDR3.addr.value <= 7'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_ADDR3.addr.load_next) begin
+                field_storage.I2C_SENSOR_ADDR3.addr.value <= field_combo.I2C_SENSOR_ADDR3.addr.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_ADDR3.addr.value = field_storage.I2C_SENSOR_ADDR3.addr.value;
+    // Field: tx_regs.I2C_SENSOR_ADDR3.reserved
+    always_comb begin
+        automatic logic [0:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_SENSOR_ADDR3.reserved.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_SENSOR_ADDR3 && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_SENSOR_ADDR3.reserved.value & ~decoded_wr_biten[7:7]) | (decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_SENSOR_ADDR3.reserved.next = next_c;
+        field_combo.I2C_SENSOR_ADDR3.reserved.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_SENSOR_ADDR3.reserved.value <= 1'h0;
+        end else begin
+            if(field_combo.I2C_SENSOR_ADDR3.reserved.load_next) begin
+                field_storage.I2C_SENSOR_ADDR3.reserved.value <= field_combo.I2C_SENSOR_ADDR3.reserved.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_SENSOR_ADDR3.reserved.value = field_storage.I2C_SENSOR_ADDR3.reserved.value;
+    // Field: tx_regs.I2C_TIMEOUT_REG.val
+    always_comb begin
+        automatic logic [7:0] next_c;
+        automatic logic load_next_c;
+        next_c = field_storage.I2C_TIMEOUT_REG.val.value;
+        load_next_c = '0;
+        if(decoded_reg_strb.I2C_TIMEOUT_REG && decoded_req_is_wr) begin // SW write
+            next_c = (field_storage.I2C_TIMEOUT_REG.val.value & ~decoded_wr_biten[7:0]) | (decoded_wr_data[7:0] & decoded_wr_biten[7:0]);
+            load_next_c = '1;
+        end
+        field_combo.I2C_TIMEOUT_REG.val.next = next_c;
+        field_combo.I2C_TIMEOUT_REG.val.load_next = load_next_c;
+    end
+    always_ff @(posedge clk) begin
+        if(rst) begin
+            field_storage.I2C_TIMEOUT_REG.val.value <= 8'h40;
+        end else begin
+            if(field_combo.I2C_TIMEOUT_REG.val.load_next) begin
+                field_storage.I2C_TIMEOUT_REG.val.value <= field_combo.I2C_TIMEOUT_REG.val.next;
+            end
+        end
+    end
+    assign hwif_out.I2C_TIMEOUT_REG.val.value = field_storage.I2C_TIMEOUT_REG.val.value;
 
     //--------------------------------------------------------------------------
     // Write response
@@ -1435,7 +2017,7 @@ module tx_regs (
     // Readback
     //--------------------------------------------------------------------------
 
-    logic [4:0] rd_mux_addr;
+    logic [5:0] rd_mux_addr;
     assign rd_mux_addr = decoded_addr;
 
     logic readback_err;
@@ -1444,35 +2026,35 @@ module tx_regs (
     always_comb begin
         automatic logic [7:0] readback_data_var;
         readback_data_var = '0;
-        if(rd_mux_addr == 5'h0) begin
+        if(rd_mux_addr == 6'h0) begin
             readback_data_var[0] = field_storage.CTRL_REG.tx_en.value;
             readback_data_var[1] = field_storage.CTRL_REG.bypass_en.value;
             readback_data_var[2] = field_storage.CTRL_REG.soft_reset.value;
             readback_data_var[7:3] = field_storage.CTRL_REG.reserved.value;
         end
-        if(rd_mux_addr == 5'h1) begin
+        if(rd_mux_addr == 6'h1) begin
             readback_data_var[1:0] = field_storage.MODE_REG.algo_sel.value;
             readback_data_var[2] = field_storage.MODE_REG.cu_disable.value;
             readback_data_var[3] = field_storage.MODE_REG.aging_disable.value;
             readback_data_var[7:4] = field_storage.MODE_REG.reserved.value;
         end
-        if(rd_mux_addr == 5'h2) begin
+        if(rd_mux_addr == 6'h2) begin
             readback_data_var[7:0] = field_storage.AGING_PERIOD_LO.val.value;
         end
-        if(rd_mux_addr == 5'h3) begin
+        if(rd_mux_addr == 6'h3) begin
             readback_data_var[7:0] = field_storage.AGING_PERIOD_HI.val.value;
         end
-        if(rd_mux_addr == 5'h4) begin
+        if(rd_mux_addr == 6'h4) begin
             readback_data_var[0] = field_storage.BF_CTRL_REG.bf_en.value;
             readback_data_var[7:3] = field_storage.BF_CTRL_REG.reserved.value;
         end
-        if(rd_mux_addr == 5'h5) begin
+        if(rd_mux_addr == 6'h5) begin
             readback_data_var[7:0] = field_storage.SLRU_CFG_REG.slru_thresh.value;
         end
-        if(rd_mux_addr == 5'h6) begin
+        if(rd_mux_addr == 6'h6) begin
             readback_data_var[7:2] = field_storage.CMD_REG.reserved.value;
         end
-        if(rd_mux_addr == 5'h7) begin
+        if(rd_mux_addr == 6'h7) begin
             readback_data_var[0] = hwif_in.STATUS_REG.in_fifo_empty.next;
             readback_data_var[1] = hwif_in.STATUS_REG.in_fifo_full.next;
             readback_data_var[2] = hwif_in.STATUS_REG.config_pending.next;
@@ -1480,88 +2062,140 @@ module tx_regs (
             readback_data_var[4] = hwif_in.STATUS_REG.reset_busy.next;
             readback_data_var[7:5] = hwif_in.STATUS_REG.fsm_state.next;
         end
-        if(rd_mux_addr == 5'h8) begin
+        if(rd_mux_addr == 6'h8) begin
             readback_data_var[0] = field_storage.INT_ENABLE_REG.fifo_overflow.value;
-            readback_data_var[1] = field_storage.INT_ENABLE_REG.fifo_underflow.value;
+            readback_data_var[1] = field_storage.INT_ENABLE_REG.reserved_1.value;
             readback_data_var[2] = field_storage.INT_ENABLE_REG.aging_event.value;
             readback_data_var[3] = field_storage.INT_ENABLE_REG.high_hit_rate.value;
-            readback_data_var[7:4] = field_storage.INT_ENABLE_REG.reserved.value;
+            readback_data_var[4] = field_storage.INT_ENABLE_REG.spi_addr_err.value;
+            readback_data_var[5] = field_storage.INT_ENABLE_REG.i2c_nack.value;
+            readback_data_var[6] = field_storage.INT_ENABLE_REG.i2c_timeout.value;
+            readback_data_var[7] = field_storage.INT_ENABLE_REG.i2c_bus_err.value;
         end
-        if(rd_mux_addr == 5'h9) begin
+        if(rd_mux_addr == 6'h9) begin
             readback_data_var[0] = field_storage.INT_STATUS_REG.fifo_overflow.value;
-            readback_data_var[1] = field_storage.INT_STATUS_REG.fifo_underflow.value;
+            readback_data_var[1] = field_storage.INT_STATUS_REG.reserved_1.value;
             readback_data_var[2] = field_storage.INT_STATUS_REG.aging_event.value;
             readback_data_var[3] = field_storage.INT_STATUS_REG.high_hit_rate.value;
-            readback_data_var[7:4] = field_storage.INT_STATUS_REG.reserved.value;
+            readback_data_var[4] = field_storage.INT_STATUS_REG.spi_addr_err.value;
+            readback_data_var[5] = field_storage.INT_STATUS_REG.i2c_nack.value;
+            readback_data_var[6] = field_storage.INT_STATUS_REG.i2c_timeout.value;
+            readback_data_var[7] = field_storage.INT_STATUS_REG.i2c_bus_err.value;
         end
-        if(rd_mux_addr == 5'ha) begin
+        if(rd_mux_addr == 6'ha) begin
             readback_data_var[0] = field_storage.CRC_CFG_REG.crc_en.value;
             readback_data_var[2:1] = field_storage.CRC_CFG_REG.crc_mode.value;
             readback_data_var[5:3] = field_storage.CRC_CFG_REG.block_size.value;
             readback_data_var[7:6] = field_storage.CRC_CFG_REG.reserved.value;
         end
-        if(rd_mux_addr == 5'hb) begin
+        if(rd_mux_addr == 6'hb) begin
             readback_data_var[7:0] = field_storage.HIT_RATE_THRESH_REG.thresh_val.value;
         end
-        if(rd_mux_addr == 5'hc) begin
-            readback_data_var[7:0] = field_storage.CNT_TOTAL_WORDS.val.value[7:0];
+        if(rd_mux_addr == 6'hc) begin
+            readback_data_var[7:0] = hwif_in.CNT_TOTAL_WORDS.val.next[7:0];
         end
-        if(rd_mux_addr == 5'hd) begin
-            readback_data_var[7:0] = field_storage.CNT_TOTAL_WORDS.val.value[15:8];
+        if(rd_mux_addr == 6'hd) begin
+            readback_data_var[7:0] = hwif_in.CNT_TOTAL_WORDS.val.next[15:8];
         end
-        if(rd_mux_addr == 5'he) begin
-            readback_data_var[7:0] = field_storage.CNT_TOTAL_WORDS.val.value[23:16];
+        if(rd_mux_addr == 6'he) begin
+            readback_data_var[7:0] = hwif_in.CNT_TOTAL_WORDS.val.next[23:16];
         end
-        if(rd_mux_addr == 5'hf) begin
-            readback_data_var[7:0] = field_storage.CNT_TOTAL_WORDS.val.value[31:24];
+        if(rd_mux_addr == 6'hf) begin
+            readback_data_var[7:0] = hwif_in.CNT_TOTAL_WORDS.val.next[31:24];
         end
-        if(rd_mux_addr == 5'h10) begin
-            readback_data_var[7:0] = field_storage.CNT_KEY_FRAMES.val.value[7:0];
+        if(rd_mux_addr == 6'h10) begin
+            readback_data_var[7:0] = hwif_in.CNT_KEY_FRAMES.val.next[7:0];
         end
-        if(rd_mux_addr == 5'h11) begin
-            readback_data_var[7:0] = field_storage.CNT_KEY_FRAMES.val.value[15:8];
+        if(rd_mux_addr == 6'h11) begin
+            readback_data_var[7:0] = hwif_in.CNT_KEY_FRAMES.val.next[15:8];
         end
-        if(rd_mux_addr == 5'h12) begin
-            readback_data_var[7:0] = field_storage.CNT_KEY_FRAMES.val.value[23:16];
+        if(rd_mux_addr == 6'h12) begin
+            readback_data_var[7:0] = hwif_in.CNT_KEY_FRAMES.val.next[23:16];
         end
-        if(rd_mux_addr == 5'h13) begin
-            readback_data_var[7:0] = field_storage.CNT_KEY_FRAMES.val.value[31:24];
+        if(rd_mux_addr == 6'h13) begin
+            readback_data_var[7:0] = hwif_in.CNT_KEY_FRAMES.val.next[31:24];
         end
-        if(rd_mux_addr == 5'h14) begin
-            readback_data_var[7:0] = field_storage.CNT_RAW_FRAMES.val.value[7:0];
+        if(rd_mux_addr == 6'h14) begin
+            readback_data_var[7:0] = hwif_in.CNT_RAW_FRAMES.val.next[7:0];
         end
-        if(rd_mux_addr == 5'h15) begin
-            readback_data_var[7:0] = field_storage.CNT_RAW_FRAMES.val.value[15:8];
+        if(rd_mux_addr == 6'h15) begin
+            readback_data_var[7:0] = hwif_in.CNT_RAW_FRAMES.val.next[15:8];
         end
-        if(rd_mux_addr == 5'h16) begin
-            readback_data_var[7:0] = field_storage.CNT_RAW_FRAMES.val.value[23:16];
+        if(rd_mux_addr == 6'h16) begin
+            readback_data_var[7:0] = hwif_in.CNT_RAW_FRAMES.val.next[23:16];
         end
-        if(rd_mux_addr == 5'h17) begin
-            readback_data_var[7:0] = field_storage.CNT_RAW_FRAMES.val.value[31:24];
+        if(rd_mux_addr == 6'h17) begin
+            readback_data_var[7:0] = hwif_in.CNT_RAW_FRAMES.val.next[31:24];
         end
-        if(rd_mux_addr == 5'h18) begin
-            readback_data_var[7:0] = field_storage.CNT_SYNC_FRAMES.val.value[7:0];
+        if(rd_mux_addr == 6'h18) begin
+            readback_data_var[7:0] = hwif_in.CNT_SYNC_FRAMES.val.next[7:0];
         end
-        if(rd_mux_addr == 5'h19) begin
-            readback_data_var[7:0] = field_storage.CNT_SYNC_FRAMES.val.value[15:8];
+        if(rd_mux_addr == 6'h19) begin
+            readback_data_var[7:0] = hwif_in.CNT_SYNC_FRAMES.val.next[15:8];
         end
-        if(rd_mux_addr == 5'h1a) begin
-            readback_data_var[7:0] = field_storage.CNT_SYNC_FRAMES.val.value[23:16];
+        if(rd_mux_addr == 6'h1a) begin
+            readback_data_var[7:0] = hwif_in.CNT_SYNC_FRAMES.val.next[23:16];
         end
-        if(rd_mux_addr == 5'h1b) begin
-            readback_data_var[7:0] = field_storage.CNT_SYNC_FRAMES.val.value[31:24];
+        if(rd_mux_addr == 6'h1b) begin
+            readback_data_var[7:0] = hwif_in.CNT_SYNC_FRAMES.val.next[31:24];
         end
-        if(rd_mux_addr == 5'h1c) begin
-            readback_data_var[7:0] = field_storage.CNT_BF_FILTERED.val.value[7:0];
+        if(rd_mux_addr == 6'h1c) begin
+            readback_data_var[7:0] = hwif_in.CNT_BF_FILTERED.val.next[7:0];
         end
-        if(rd_mux_addr == 5'h1d) begin
-            readback_data_var[7:0] = field_storage.CNT_BF_FILTERED.val.value[15:8];
+        if(rd_mux_addr == 6'h1d) begin
+            readback_data_var[7:0] = hwif_in.CNT_BF_FILTERED.val.next[15:8];
         end
-        if(rd_mux_addr == 5'h1e) begin
-            readback_data_var[7:0] = field_storage.CNT_BF_FILTERED.val.value[23:16];
+        if(rd_mux_addr == 6'h1e) begin
+            readback_data_var[7:0] = hwif_in.CNT_BF_FILTERED.val.next[23:16];
         end
-        if(rd_mux_addr == 5'h1f) begin
-            readback_data_var[7:0] = field_storage.CNT_BF_FILTERED.val.value[31:24];
+        if(rd_mux_addr == 6'h1f) begin
+            readback_data_var[7:0] = hwif_in.CNT_BF_FILTERED.val.next[31:24];
+        end
+        if(rd_mux_addr == 6'h20) begin
+            readback_data_var[7:0] = field_storage.SDR_CLK_DIV_LO.val.value;
+        end
+        if(rd_mux_addr == 6'h21) begin
+            readback_data_var[7:0] = field_storage.SDR_CLK_DIV_HI.val.value;
+        end
+        if(rd_mux_addr == 6'h22) begin
+            readback_data_var[0] = field_storage.I2C_CTRL_REG.i2c_en.value;
+            readback_data_var[1] = field_storage.I2C_CTRL_REG.poll_en.value;
+            readback_data_var[7:2] = field_storage.I2C_CTRL_REG.reserved.value;
+        end
+        if(rd_mux_addr == 6'h23) begin
+            readback_data_var[7:0] = field_storage.I2C_CLK_DIV_LO.val.value;
+        end
+        if(rd_mux_addr == 6'h24) begin
+            readback_data_var[7:0] = field_storage.I2C_CLK_DIV_HI.val.value;
+        end
+        if(rd_mux_addr == 6'h25) begin
+            readback_data_var[3:0] = field_storage.I2C_SENSOR_EN.sensor_en.value;
+            readback_data_var[7:4] = field_storage.I2C_SENSOR_EN.reserved.value;
+        end
+        if(rd_mux_addr == 6'h26) begin
+            readback_data_var[6:0] = field_storage.I2C_SENSOR_ADDR0.addr.value;
+            readback_data_var[7] = field_storage.I2C_SENSOR_ADDR0.reserved.value;
+        end
+        if(rd_mux_addr == 6'h27) begin
+            readback_data_var[6:0] = field_storage.I2C_SENSOR_ADDR1.addr.value;
+            readback_data_var[7] = field_storage.I2C_SENSOR_ADDR1.reserved.value;
+        end
+        if(rd_mux_addr == 6'h28) begin
+            readback_data_var[6:0] = field_storage.I2C_SENSOR_ADDR2.addr.value;
+            readback_data_var[7] = field_storage.I2C_SENSOR_ADDR2.reserved.value;
+        end
+        if(rd_mux_addr == 6'h29) begin
+            readback_data_var[6:0] = field_storage.I2C_SENSOR_ADDR3.addr.value;
+            readback_data_var[7] = field_storage.I2C_SENSOR_ADDR3.reserved.value;
+        end
+        if(rd_mux_addr == 6'h2a) begin
+            readback_data_var[0] = hwif_in.I2C_STATUS_REG.busy.next;
+            readback_data_var[1] = hwif_in.I2C_STATUS_REG.poll_paused.next;
+            readback_data_var[2] = hwif_in.I2C_STATUS_REG.bus_recovery.next;
+            readback_data_var[7:3] = hwif_in.I2C_STATUS_REG.reserved.next;
+        end
+        if(rd_mux_addr == 6'h2b) begin
+            readback_data_var[7:0] = field_storage.I2C_TIMEOUT_REG.val.value;
         end
         readback_data = readback_data_var;
         readback_done = decoded_req & ~decoded_req_is_wr;

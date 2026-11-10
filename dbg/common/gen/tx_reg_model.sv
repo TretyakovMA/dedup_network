@@ -167,10 +167,13 @@ package tx_reg_model;
     // reg - tx_regs::int_enable_reg_t
     class tx_regs__int_enable_reg_t extends uvm_reg;
         rand uvm_reg_field fifo_overflow;
-        rand uvm_reg_field fifo_underflow;
+        rand uvm_reg_field reserved_1;
         rand uvm_reg_field aging_event;
         rand uvm_reg_field high_hit_rate;
-        rand uvm_reg_field reserved;
+        rand uvm_reg_field spi_addr_err;
+        rand uvm_reg_field i2c_nack;
+        rand uvm_reg_field i2c_timeout;
+        rand uvm_reg_field i2c_bus_err;
 
         function new(string name = "tx_regs__int_enable_reg_t");
             super.new(name, 8, UVM_NO_COVERAGE);
@@ -179,24 +182,33 @@ package tx_reg_model;
         virtual function void build();
             this.fifo_overflow = new("fifo_overflow");
             this.fifo_overflow.configure(this, 1, 0, "RW", 0, 'h0, 1, 1, 0);
-            this.fifo_underflow = new("fifo_underflow");
-            this.fifo_underflow.configure(this, 1, 1, "RW", 0, 'h0, 1, 1, 0);
+            this.reserved_1 = new("reserved_1");
+            this.reserved_1.configure(this, 1, 1, "RW", 0, 'h0, 1, 1, 0);
             this.aging_event = new("aging_event");
             this.aging_event.configure(this, 1, 2, "RW", 0, 'h0, 1, 1, 0);
             this.high_hit_rate = new("high_hit_rate");
             this.high_hit_rate.configure(this, 1, 3, "RW", 0, 'h0, 1, 1, 0);
-            this.reserved = new("reserved");
-            this.reserved.configure(this, 4, 4, "RW", 0, 'h0, 1, 1, 0);
+            this.spi_addr_err = new("spi_addr_err");
+            this.spi_addr_err.configure(this, 1, 4, "RW", 0, 'h0, 1, 1, 0);
+            this.i2c_nack = new("i2c_nack");
+            this.i2c_nack.configure(this, 1, 5, "RW", 0, 'h0, 1, 1, 0);
+            this.i2c_timeout = new("i2c_timeout");
+            this.i2c_timeout.configure(this, 1, 6, "RW", 0, 'h0, 1, 1, 0);
+            this.i2c_bus_err = new("i2c_bus_err");
+            this.i2c_bus_err.configure(this, 1, 7, "RW", 0, 'h0, 1, 1, 0);
         endfunction : build
     endclass : tx_regs__int_enable_reg_t
 
     // reg - tx_regs::int_status_reg_t
     class tx_regs__int_status_reg_t extends uvm_reg;
         rand uvm_reg_field fifo_overflow;
-        rand uvm_reg_field fifo_underflow;
+        rand uvm_reg_field reserved_1;
         rand uvm_reg_field aging_event;
         rand uvm_reg_field high_hit_rate;
-        rand uvm_reg_field reserved;
+        rand uvm_reg_field spi_addr_err;
+        rand uvm_reg_field i2c_nack;
+        rand uvm_reg_field i2c_timeout;
+        rand uvm_reg_field i2c_bus_err;
 
         function new(string name = "tx_regs__int_status_reg_t");
             super.new(name, 8, UVM_NO_COVERAGE);
@@ -205,14 +217,20 @@ package tx_reg_model;
         virtual function void build();
             this.fifo_overflow = new("fifo_overflow");
             this.fifo_overflow.configure(this, 1, 0, "W1C", 1, 'h0, 1, 1, 0);
-            this.fifo_underflow = new("fifo_underflow");
-            this.fifo_underflow.configure(this, 1, 1, "W1C", 1, 'h0, 1, 1, 0);
+            this.reserved_1 = new("reserved_1");
+            this.reserved_1.configure(this, 1, 1, "RW", 0, 'h0, 1, 1, 0);
             this.aging_event = new("aging_event");
             this.aging_event.configure(this, 1, 2, "W1C", 1, 'h0, 1, 1, 0);
             this.high_hit_rate = new("high_hit_rate");
             this.high_hit_rate.configure(this, 1, 3, "W1C", 1, 'h0, 1, 1, 0);
-            this.reserved = new("reserved");
-            this.reserved.configure(this, 4, 4, "RW", 0, 'h0, 1, 1, 0);
+            this.spi_addr_err = new("spi_addr_err");
+            this.spi_addr_err.configure(this, 1, 4, "W1C", 1, 'h0, 1, 1, 0);
+            this.i2c_nack = new("i2c_nack");
+            this.i2c_nack.configure(this, 1, 5, "W1C", 1, 'h0, 1, 1, 0);
+            this.i2c_timeout = new("i2c_timeout");
+            this.i2c_timeout.configure(this, 1, 6, "W1C", 1, 'h0, 1, 1, 0);
+            this.i2c_bus_err = new("i2c_bus_err");
+            this.i2c_bus_err.configure(this, 1, 7, "W1C", 1, 'h0, 1, 1, 0);
         endfunction : build
     endclass : tx_regs__int_status_reg_t
 
@@ -267,6 +285,153 @@ package tx_reg_model;
         endfunction : build
     endclass : tx_regs__cnt_32_t
 
+    // reg - tx_regs::sdr_clk_div_lo_t
+    class tx_regs__sdr_clk_div_lo_t extends uvm_reg;
+        rand uvm_reg_field val;
+
+        function new(string name = "tx_regs__sdr_clk_div_lo_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.val = new("val");
+            this.val.configure(this, 8, 0, "RW", 0, 'h0, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__sdr_clk_div_lo_t
+
+    // reg - tx_regs::sdr_clk_div_hi_t
+    class tx_regs__sdr_clk_div_hi_t extends uvm_reg;
+        rand uvm_reg_field val;
+
+        function new(string name = "tx_regs__sdr_clk_div_hi_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.val = new("val");
+            this.val.configure(this, 8, 0, "RW", 0, 'h0, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__sdr_clk_div_hi_t
+
+    // reg - tx_regs::i2c_ctrl_reg_t
+    class tx_regs__i2c_ctrl_reg_t extends uvm_reg;
+        rand uvm_reg_field i2c_en;
+        rand uvm_reg_field poll_en;
+        rand uvm_reg_field reserved;
+
+        function new(string name = "tx_regs__i2c_ctrl_reg_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.i2c_en = new("i2c_en");
+            this.i2c_en.configure(this, 1, 0, "RW", 0, 'h0, 1, 1, 0);
+            this.poll_en = new("poll_en");
+            this.poll_en.configure(this, 1, 1, "RW", 0, 'h0, 1, 1, 0);
+            this.reserved = new("reserved");
+            this.reserved.configure(this, 6, 2, "RW", 0, 'h0, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__i2c_ctrl_reg_t
+
+    // reg - tx_regs::i2c_clk_div_byte_t
+    class tx_regs__i2c_clk_div_byte_t extends uvm_reg;
+        rand uvm_reg_field val;
+
+        function new(string name = "tx_regs__i2c_clk_div_byte_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.val = new("val");
+            this.val.configure(this, 8, 0, "RW", 0, 'hf9, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__i2c_clk_div_byte_t
+
+    // reg - tx_regs::i2c_clk_div_hi_t
+    class tx_regs__i2c_clk_div_hi_t extends uvm_reg;
+        rand uvm_reg_field val;
+
+        function new(string name = "tx_regs__i2c_clk_div_hi_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.val = new("val");
+            this.val.configure(this, 8, 0, "RW", 0, 'h0, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__i2c_clk_div_hi_t
+
+    // reg - tx_regs::i2c_sensor_en_t
+    class tx_regs__i2c_sensor_en_t extends uvm_reg;
+        rand uvm_reg_field sensor_en;
+        rand uvm_reg_field reserved;
+
+        function new(string name = "tx_regs__i2c_sensor_en_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.sensor_en = new("sensor_en");
+            this.sensor_en.configure(this, 4, 0, "RW", 0, 'h0, 1, 1, 0);
+            this.reserved = new("reserved");
+            this.reserved.configure(this, 4, 4, "RW", 0, 'h0, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__i2c_sensor_en_t
+
+    // reg - tx_regs::i2c_sensor_addr_t
+    class tx_regs__i2c_sensor_addr_t extends uvm_reg;
+        rand uvm_reg_field addr;
+        rand uvm_reg_field reserved;
+
+        function new(string name = "tx_regs__i2c_sensor_addr_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.addr = new("addr");
+            this.addr.configure(this, 7, 0, "RW", 0, 'h0, 1, 1, 0);
+            this.reserved = new("reserved");
+            this.reserved.configure(this, 1, 7, "RW", 0, 'h0, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__i2c_sensor_addr_t
+
+    // reg - tx_regs::i2c_status_reg_t
+    class tx_regs__i2c_status_reg_t extends uvm_reg;
+        rand uvm_reg_field busy;
+        rand uvm_reg_field poll_paused;
+        rand uvm_reg_field bus_recovery;
+        rand uvm_reg_field reserved;
+
+        function new(string name = "tx_regs__i2c_status_reg_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.busy = new("busy");
+            this.busy.configure(this, 1, 0, "RO", 1, 'h0, 1, 1, 0);
+            this.poll_paused = new("poll_paused");
+            this.poll_paused.configure(this, 1, 1, "RO", 1, 'h0, 1, 1, 0);
+            this.bus_recovery = new("bus_recovery");
+            this.bus_recovery.configure(this, 1, 2, "RO", 1, 'h0, 1, 1, 0);
+            this.reserved = new("reserved");
+            this.reserved.configure(this, 5, 3, "RO", 1, 'h0, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__i2c_status_reg_t
+
+    // reg - tx_regs::i2c_timeout_reg_t
+    class tx_regs__i2c_timeout_reg_t extends uvm_reg;
+        rand uvm_reg_field val;
+
+        function new(string name = "tx_regs__i2c_timeout_reg_t");
+            super.new(name, 8, UVM_NO_COVERAGE);
+        endfunction : new
+
+        virtual function void build();
+            this.val = new("val");
+            this.val.configure(this, 8, 0, "RW", 0, 'h40, 1, 1, 0);
+        endfunction : build
+    endclass : tx_regs__i2c_timeout_reg_t
+
     // addrmap - tx_regs
     class tx_regs extends uvm_reg_block;
         rand tx_regs__ctrl_reg_t CTRL_REG;
@@ -286,6 +451,18 @@ package tx_reg_model;
         rand tx_regs__cnt_32_t CNT_RAW_FRAMES;
         rand tx_regs__cnt_32_t CNT_SYNC_FRAMES;
         rand tx_regs__cnt_32_t CNT_BF_FILTERED;
+        rand tx_regs__sdr_clk_div_lo_t SDR_CLK_DIV_LO;
+        rand tx_regs__sdr_clk_div_hi_t SDR_CLK_DIV_HI;
+        rand tx_regs__i2c_ctrl_reg_t I2C_CTRL_REG;
+        rand tx_regs__i2c_clk_div_byte_t I2C_CLK_DIV_LO;
+        rand tx_regs__i2c_clk_div_hi_t I2C_CLK_DIV_HI;
+        rand tx_regs__i2c_sensor_en_t I2C_SENSOR_EN;
+        rand tx_regs__i2c_sensor_addr_t I2C_SENSOR_ADDR0;
+        rand tx_regs__i2c_sensor_addr_t I2C_SENSOR_ADDR1;
+        rand tx_regs__i2c_sensor_addr_t I2C_SENSOR_ADDR2;
+        rand tx_regs__i2c_sensor_addr_t I2C_SENSOR_ADDR3;
+        rand tx_regs__i2c_status_reg_t I2C_STATUS_REG;
+        rand tx_regs__i2c_timeout_reg_t I2C_TIMEOUT_REG;
 
         function new(string name = "tx_regs");
             super.new(name);
@@ -378,6 +555,66 @@ package tx_reg_model;
 
             this.CNT_BF_FILTERED.build();
             this.default_map.add_reg(this.CNT_BF_FILTERED, 'h1c);
+            this.SDR_CLK_DIV_LO = new("SDR_CLK_DIV_LO");
+            this.SDR_CLK_DIV_LO.configure(this);
+
+            this.SDR_CLK_DIV_LO.build();
+            this.default_map.add_reg(this.SDR_CLK_DIV_LO, 'h20);
+            this.SDR_CLK_DIV_HI = new("SDR_CLK_DIV_HI");
+            this.SDR_CLK_DIV_HI.configure(this);
+
+            this.SDR_CLK_DIV_HI.build();
+            this.default_map.add_reg(this.SDR_CLK_DIV_HI, 'h21);
+            this.I2C_CTRL_REG = new("I2C_CTRL_REG");
+            this.I2C_CTRL_REG.configure(this);
+
+            this.I2C_CTRL_REG.build();
+            this.default_map.add_reg(this.I2C_CTRL_REG, 'h22);
+            this.I2C_CLK_DIV_LO = new("I2C_CLK_DIV_LO");
+            this.I2C_CLK_DIV_LO.configure(this);
+
+            this.I2C_CLK_DIV_LO.build();
+            this.default_map.add_reg(this.I2C_CLK_DIV_LO, 'h23);
+            this.I2C_CLK_DIV_HI = new("I2C_CLK_DIV_HI");
+            this.I2C_CLK_DIV_HI.configure(this);
+
+            this.I2C_CLK_DIV_HI.build();
+            this.default_map.add_reg(this.I2C_CLK_DIV_HI, 'h24);
+            this.I2C_SENSOR_EN = new("I2C_SENSOR_EN");
+            this.I2C_SENSOR_EN.configure(this);
+
+            this.I2C_SENSOR_EN.build();
+            this.default_map.add_reg(this.I2C_SENSOR_EN, 'h25);
+            this.I2C_SENSOR_ADDR0 = new("I2C_SENSOR_ADDR0");
+            this.I2C_SENSOR_ADDR0.configure(this);
+
+            this.I2C_SENSOR_ADDR0.build();
+            this.default_map.add_reg(this.I2C_SENSOR_ADDR0, 'h26);
+            this.I2C_SENSOR_ADDR1 = new("I2C_SENSOR_ADDR1");
+            this.I2C_SENSOR_ADDR1.configure(this);
+
+            this.I2C_SENSOR_ADDR1.build();
+            this.default_map.add_reg(this.I2C_SENSOR_ADDR1, 'h27);
+            this.I2C_SENSOR_ADDR2 = new("I2C_SENSOR_ADDR2");
+            this.I2C_SENSOR_ADDR2.configure(this);
+
+            this.I2C_SENSOR_ADDR2.build();
+            this.default_map.add_reg(this.I2C_SENSOR_ADDR2, 'h28);
+            this.I2C_SENSOR_ADDR3 = new("I2C_SENSOR_ADDR3");
+            this.I2C_SENSOR_ADDR3.configure(this);
+
+            this.I2C_SENSOR_ADDR3.build();
+            this.default_map.add_reg(this.I2C_SENSOR_ADDR3, 'h29);
+            this.I2C_STATUS_REG = new("I2C_STATUS_REG");
+            this.I2C_STATUS_REG.configure(this);
+
+            this.I2C_STATUS_REG.build();
+            this.default_map.add_reg(this.I2C_STATUS_REG, 'h2a);
+            this.I2C_TIMEOUT_REG = new("I2C_TIMEOUT_REG");
+            this.I2C_TIMEOUT_REG.configure(this);
+
+            this.I2C_TIMEOUT_REG.build();
+            this.default_map.add_reg(this.I2C_TIMEOUT_REG, 'h2b);
         endfunction : build
     endclass : tx_regs
 

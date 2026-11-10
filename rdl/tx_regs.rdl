@@ -289,19 +289,19 @@ addrmap tx_regs {
 
         field {
             name  = "FIFO_OVERFLOW";
-            desc  = "Разрешение прерывания по переполнению FIFO";
+            desc  = "Разрешение прерывания при полном входном FIFO и паузе опроса датчиков";
             sw    = rw; 
             hw    = r;
             reset = 1'b0;
         } fifo_overflow[0:0];
 
         field {
-            name  = "FIFO_UNDERFLOW";
-            desc  = "Разрешение прерывания по чтению из пустого FIFO";
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
             sw    = rw; 
             hw    = r;
             reset = 1'b0;
-        } fifo_underflow[1:1];
+        } reserved_1[1:1];
 
         field {
             name  = "AGING_EVENT";
@@ -328,12 +328,28 @@ addrmap tx_regs {
         } spi_addr_err[4:4];
 
         field {
-            name  = "RESERVED";
-            desc  = "Зарезервировано";
-            sw    = rw; 
+            name  = "I2C_NACK";
+            desc  = "Разрешение прерывания по NACK от датчика I2C";
+            sw    = rw;
             hw    = r;
-            reset = 3'b000;
-        } reserved[7:5];
+            reset = 1'b0;
+        } i2c_nack[5:5];
+
+        field {
+            name  = "I2C_TIMEOUT";
+            desc  = "Разрешение прерывания по таймауту транзакции I2C";
+            sw    = rw;
+            hw    = r;
+            reset = 1'b0;
+        } i2c_timeout[6:6];
+
+        field {
+            name  = "I2C_BUS_ERR";
+            desc  = "Разрешение прерывания по ошибке или зависанию шины I2C";
+            sw    = rw;
+            hw    = r;
+            reset = 1'b0;
+        } i2c_bus_err[7:7];
     };
     int_enable_reg_t INT_ENABLE_REG @ 0x08;
 
@@ -346,7 +362,7 @@ addrmap tx_regs {
 
         field {
             name    = "FIFO_OVERFLOW";
-            desc    = "Зафиксировано переполнение FIFO";
+            desc    = "Входное FIFO заполнено, опрос датчиков приостановлен";
             sw      = rw; 
             hw      = rw;
             onwrite = woclr; 
@@ -354,13 +370,12 @@ addrmap tx_regs {
         } fifo_overflow[0:0];
 
         field {
-            name    = "FIFO_UNDERFLOW";
-            desc    = "Зафиксирована попытка чтения пустого FIFO";
-            sw      = rw; 
-            hw      = rw;
-            onwrite = woclr; 
-            reset   = 1'b0;
-        } fifo_underflow[1:1];
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw;
+            hw    = r;
+            reset = 1'b0;
+        } reserved_1[1:1];
 
         field {
             name    = "AGING_EVENT";
@@ -390,12 +405,31 @@ addrmap tx_regs {
         } spi_addr_err[4:4];
 
         field {
-            name  = "RESERVED";
-            desc  = "Зарезервировано";
-            sw    = rw; 
-            hw    = r;
-            reset = 3'b000;
-        } reserved[7:5];
+            name    = "I2C_NACK";
+            desc    = "Зафиксирован NACK от датчика I2C";
+            sw      = rw;
+            hw      = rw;
+            onwrite = woclr;
+            reset   = 1'b0;
+        } i2c_nack[5:5];
+
+        field {
+            name    = "I2C_TIMEOUT";
+            desc    = "Зафиксирован таймаут транзакции I2C";
+            sw      = rw;
+            hw      = rw;
+            onwrite = woclr;
+            reset   = 1'b0;
+        } i2c_timeout[6:6];
+
+        field {
+            name    = "I2C_BUS_ERR";
+            desc    = "Зафиксирована ошибка или зависание шины I2C";
+            sw      = rw;
+            hw      = rw;
+            onwrite = woclr;
+            reset   = 1'b0;
+        } i2c_bus_err[7:7];
     };
     int_status_reg_t INT_STATUS_REG @ 0x09;
 
@@ -479,4 +513,182 @@ addrmap tx_regs {
     cnt_32_t CNT_RAW_FRAMES   @ 0x14;
     cnt_32_t CNT_SYNC_FRAMES  @ 0x18;
     cnt_32_t CNT_BF_FILTERED  @ 0x1C;
+
+    /* -------------------------------------------------------------------------
+     * 0x20 - 0x21 - SDR clock divider (16-bit, little endian)
+     * ------------------------------------------------------------------------- */
+    reg sdr_clk_div_lo_t {
+        name = "SDR Clock Divider Low Byte";
+        desc = "Младший байт 16-битного делителя частоты SDR";
+        field {
+            name  = "VAL";
+            desc  = "Биты [7:0] делителя SDR";
+            sw    = rw;
+            hw    = r;
+            reset = 8'h00;
+        } val[7:0];
+    } SDR_CLK_DIV_LO @ 0x20;
+
+    reg sdr_clk_div_hi_t {
+        name = "SDR Clock Divider High Byte";
+        desc = "Старший байт 16-битного делителя частоты SDR";
+        field {
+            name  = "VAL";
+            desc  = "Биты [15:8] делителя SDR";
+            sw    = rw;
+            hw    = r;
+            reset = 8'h00;
+        } val[7:0];
+    } SDR_CLK_DIV_HI @ 0x21;
+
+    /* -------------------------------------------------------------------------
+     * 0x22 - I2C_CTRL_REG
+     * ------------------------------------------------------------------------- */
+    reg i2c_ctrl_reg_t {
+        name = "I2C Control Register";
+        desc = "Управление I2C-контроллером и циклическим опросом датчиков";
+        field {
+            name  = "I2C_EN";
+            desc  = "Разрешение работы I2C-контроллера";
+            sw    = rw;
+            hw    = r;
+            reset = 1'b0;
+        } i2c_en[0:0];
+        field {
+            name  = "POLL_EN";
+            desc  = "Запуск циклического опроса датчиков";
+            sw    = rw;
+            hw    = r;
+            reset = 1'b0;
+        } poll_en[1:1];
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw;
+            hw    = r;
+            reset = 6'b000000;
+        } reserved[7:2];
+    } I2C_CTRL_REG @ 0x22;
+
+    /* 16-bit I2C clock divider split into byte registers for 8-bit SPI access. */
+    reg i2c_clk_div_byte_t {
+        name = "I2C Clock Divider Byte";
+        desc = "Байт 16-битного делителя частоты I2C от системных 50 МГц";
+        field {
+            name  = "VAL";
+            desc  = "Байт значения делителя I2C";
+            sw    = rw;
+            hw    = r;
+            reset = 8'hF9;
+        } val[7:0];
+    } I2C_CLK_DIV_LO @ 0x23;
+
+    reg i2c_clk_div_hi_t {
+        name = "I2C Clock Divider High Byte";
+        desc = "Старший байт 16-битного делителя частоты I2C";
+        field {
+            name  = "VAL";
+            desc  = "Биты [15:8] делителя I2C";
+            sw    = rw;
+            hw    = r;
+            reset = 8'h00;
+        } val[7:0];
+    } I2C_CLK_DIV_HI @ 0x24;
+
+    /* -------------------------------------------------------------------------
+     * 0x25 - I2C_SENSOR_EN
+     * ------------------------------------------------------------------------- */
+    reg i2c_sensor_en_t {
+        name = "I2C Sensor Enable Register";
+        desc = "Маска разрешения опроса до четырех датчиков";
+        field {
+            name  = "SENSOR_EN";
+            desc  = "Биты [3:0] разрешают опрос датчиков 0..3";
+            sw    = rw;
+            hw    = r;
+            reset = 4'b0000;
+        } sensor_en[3:0];
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw;
+            hw    = r;
+            reset = 4'b0000;
+        } reserved[7:4];
+    } I2C_SENSOR_EN @ 0x25;
+
+    /* Per-sensor 7-bit I2C addresses. */
+    reg i2c_sensor_addr_t {
+        name = "I2C Sensor Address";
+        desc = "7-битный адрес датчика на общей I2C-шине";
+        field {
+            name  = "ADDR";
+            desc  = "7-битный адрес датчика";
+            sw    = rw;
+            hw    = r;
+            reset = 7'h00;
+        } addr[6:0];
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = rw;
+            hw    = r;
+            reset = 1'b0;
+        } reserved[7:7];
+    } I2C_SENSOR_ADDR0 @ 0x26;
+
+    i2c_sensor_addr_t I2C_SENSOR_ADDR1 @ 0x27;
+    i2c_sensor_addr_t I2C_SENSOR_ADDR2 @ 0x28;
+    i2c_sensor_addr_t I2C_SENSOR_ADDR3 @ 0x29;
+
+    /* -------------------------------------------------------------------------
+     * 0x2A - I2C_STATUS_REG
+     * ------------------------------------------------------------------------- */
+    reg i2c_status_reg_t {
+        name = "I2C Status Register";
+        desc = "Текущее состояние I2C-опроса";
+        field {
+            name  = "BUSY";
+            desc  = "Активна I2C-транзакция";
+            sw    = r;
+            hw    = w;
+            reset = 1'b0;
+        } busy[0:0];
+        field {
+            name  = "POLL_PAUSED";
+            desc  = "Опрос приостановлен из-за заполнения входного FIFO";
+            sw    = r;
+            hw    = w;
+            reset = 1'b0;
+        } poll_paused[1:1];
+        field {
+            name  = "BUS_RECOVERY";
+            desc  = "Выполняется восстановление I2C-шины";
+            sw    = r;
+            hw    = w;
+            reset = 1'b0;
+        } bus_recovery[2:2];
+        field {
+            name  = "RESERVED";
+            desc  = "Зарезервировано";
+            sw    = r;
+            hw    = w;
+            reset = 5'b00000;
+        } reserved[7:3];
+    } I2C_STATUS_REG @ 0x2A;
+
+    /* -------------------------------------------------------------------------
+     * 0x2B - I2C_TIMEOUT_REG
+     * ------------------------------------------------------------------------- */
+    reg i2c_timeout_reg_t {
+        name = "I2C Timeout Register";
+        desc = "Порог ожидания ответа датчика в тактах SCL";
+        field {
+            name  = "VAL";
+            desc  = "Таймаут транзакции в тактах SCL; значение сброса равно 64";
+            sw    = rw;
+            hw    = r;
+            reset = 8'h40;
+        } val[7:0];
+    } I2C_TIMEOUT_REG @ 0x2B;
 };
