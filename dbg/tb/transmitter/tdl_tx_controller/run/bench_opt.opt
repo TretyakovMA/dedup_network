@@ -1,0 +1,2 @@
+$(RTL_PATH)/transmitter/tdl_tx_controller.sv
+$(TB_TOP_PATH)/tdl_tx_controller_tb_top.sv

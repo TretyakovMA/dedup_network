@@ -1,0 +1,2 @@
+$(RTL_PATH)/common/fifo.sv
+$(TB_TOP_PATH)/fifo_tb_top.sv

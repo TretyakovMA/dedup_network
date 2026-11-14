@@ -1,11 +1,11 @@
 /*
 * Deduplicator TX Register Map (SystemRDL 2.0 Specification)
-* Module: dedup_tx_top
+* Module: tdl_tx_top
 * CPU Interface: SPI (8-bit, Byte Addressing)
 */
 
 addrmap tx_regs {
-    name = "dedup_tx_top Registers";
+    name = "tdl_tx_top Registers";
     desc = "Карта регистров передатчика";
     littleendian;
 

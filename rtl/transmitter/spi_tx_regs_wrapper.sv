@@ -69,7 +69,6 @@ module spi_tx_regs_wrapper(
     );
 
     assign spi_irq = hwif_out.INT_STATUS_REG.fifo_overflow.value |
-                     hwif_out.INT_STATUS_REG.fifo_underflow.value |
                      hwif_out.INT_STATUS_REG.aging_event.value |
                      hwif_out.INT_STATUS_REG.high_hit_rate.value |
                      hwif_out.INT_STATUS_REG.spi_addr_err.value;
