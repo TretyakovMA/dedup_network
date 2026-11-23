@@ -1,0 +1,3 @@
+$(RTL_PATH)/transmitter/tdl_tab_hash_pkg.sv
+$(RTL_PATH)/transmitter/tdl_tab_hash.sv
+$(TB_TOP_PATH)/tdl_tab_hash_tb_top.sv

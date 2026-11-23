@@ -16,5 +16,6 @@ $(COMMON_PATH)/gen/tx_reg_model.sv
 $(COMMON_PATH)/uvc/clock_uvc/clock_uvc_pkg.sv
 $(COMMON_PATH)/uvc/reset_uvc/reset_uvc_pkg.sv
 $(COMMON_PATH)/uvc/spi_agent/spi_agent_pkg.sv
+$(TB_TOP_PATH)/spi_irq_check_if.sv
 $(TB_TOP_PATH)/pkgs/spi_pkg.sv
 $(TB_TOP_PATH)/spi_tx_regs_wrapper_tb_top.sv

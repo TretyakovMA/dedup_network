@@ -1,5 +1,6 @@
 `ifndef AXIS_INPUT_FIFO
 `define AXIS_INPUT_FIFO
+// Входной AXI-Stream FIFO с выдачей головного слова до чтения (FWFT).
 module axis_input_fifo #(
     parameter int WIDTH = 32, // Разрядность входных данных
     parameter int DEPTH = 16  // Глубина FIFO
@@ -19,6 +20,7 @@ module axis_input_fifo #(
     output logic                  full    // Флаг переполнения
 );
 
+    // Внутреннее FIFO блокирует запись при full, поэтому push соответствует tvalid && tready.
     fifo #(
         .WIDTH(WIDTH),
         .DEPTH(DEPTH)
@@ -33,8 +35,18 @@ module axis_input_fifo #(
         .empty (empty )
     );
 
+    // При полном FIFO одновременное чтение освобождает место для следующего такта.
     assign tready = !full;
 
+`ifndef SYNTHESIS
+    // Проверки параметров при запуске моделирования.
+    initial begin
+        assert (WIDTH > 0)
+            else $error("axis_input_fifo requires WIDTH > 0");
+        assert ((DEPTH >= 2) && ((DEPTH & (DEPTH - 1)) == 0))
+            else $error("axis_input_fifo requires DEPTH to be a power of two >= 2");
+    end
+`endif
 
 endmodule
 `endif

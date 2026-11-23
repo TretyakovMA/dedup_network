@@ -1,0 +1,2 @@
+$(RTL_PATH)/transmitter/tdl_slru_policy.sv
+$(TB_TOP_PATH)/tdl_slru_policy_tb_top.sv

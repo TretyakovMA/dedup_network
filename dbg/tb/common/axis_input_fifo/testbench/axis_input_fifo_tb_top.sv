@@ -1,66 +1,29 @@
+module axis_input_fifo_test #(
+    parameter int DEPTH = 16
+) (
+    output bit done
+);
+    timeunit 1ns;
+    timeprecision 1ps;
 
-`define GREEN_STR(str) ($sformatf("\033[32m%s\033[0m", str))
-`define RED_STR(str) ($sformatf("\033[31;1m%s\033[0m", str))
+    localparam time CLK_PERIOD = 20ns;
+    typedef logic [31:0] data_t;
 
-module axis_input_fifo_tb_top;
+    logic clk = 0, rst_n = 1;
+    logic tvalid = 0, tready, r_en = 0, empty, full;
+    data_t tdata = '0, r_data;
 
-    enum {
-        WIDTH      = 8, 
-        DEPTH      = 16,
-        CLK_PERIOD = 20,
-        RESET_TIME = 40
-    } param_e;
+    data_t expected_words[$];
+    data_t next_data = 32'h1357_9bdf;
+    bit stalled;
+    data_t stalled_data;
 
-    
-
-    logic clk;
-    logic rst_n;
-
-    logic [WIDTH-1:0] tdata;
-    logic             tvalid;
-    logic             tready;
-    logic             r_en;
-    logic [WIDTH-1:0] r_data;
-    logic             empty;
-    logic             full;
-
-
-    typedef logic[WIDTH-1:0] data_t;
-
-    int error_count = 0;
-
-
-
-
-    data_t fifo_q[$];
-
-    function bit is_fifo_empty();
-        return fifo_q.size() == 0;
-    endfunction
-
-    function bit is_fifo_full();
-        return fifo_q.size() == DEPTH;
-    endfunction
-
-    function void push_fifo(data_t data);
-        if(is_fifo_full()) begin
-            $display("Time: %0t, FIFO is full. Cannot push data: %b", $time, data);
-            return;
-        end
-        fifo_q.push_back(data);
-    endfunction
-
-    function data_t pop_fifo();
-        if(is_fifo_empty()) begin
-            $display("Time: %0t, FIFO is empty. Cannot pop data.", $time);
-            return '0;
-        end
-        return fifo_q.pop_front();
-    endfunction
-
+    int accepted_words = 0, popped_words = 0, reset_words = 0;
+    int empty_push_pop = 0, full_push_pop = 0, interior_push_pop = 0;
+    int stall_cycles = 0, longest_stall = 0, current_stall = 0, resumed_writes = 0;
 
     axis_input_fifo #(
-        .WIDTH(WIDTH),
+        .WIDTH($bits(data_t)),
         .DEPTH(DEPTH)
     ) dut (
         .clk   (clk),
@@ -74,148 +37,164 @@ module axis_input_fifo_tb_top;
         .full  (full)
     );
 
-    initial begin
-        clk = 0;
-        forever #(CLK_PERIOD/2) clk = ~clk;
-    end
+    always #(CLK_PERIOD / 2) clk = ~clk;
 
+    task automatic check_outputs(input string phase);
+        bit expected_empty, expected_full;
+        expected_empty = expected_words.size() == 0;
+        expected_full  = expected_words.size() == DEPTH;
 
+        if ({empty, full, tready} !== {expected_empty, expected_full, !expected_full})
+            $fatal(1, "DEPTH=%0d %s at %t: count=%0d empty/full/tready=%b%b%b expected=%b%b%b",
+                   DEPTH, phase, $time, expected_words.size(), empty, full, tready,
+                   expected_empty, expected_full, !expected_full);
 
-    task initialize();
+        if (!expected_empty && r_data !== expected_words[0])
+            $fatal(1, "DEPTH=%0d %s at %t: FWFT head=%h expected=%h",
+                   DEPTH, phase, $time, r_data, expected_words[0]);
+    endtask
+
+    task automatic reset_fifo();
+        @(negedge clk);
         rst_n  = 0;
         tvalid = 0;
         tdata  = '0;
         r_en   = 0;
 
-        #(RESET_TIME);
+        reset_words += expected_words.size();
+        expected_words.delete();
+        stalled = 0;
+        current_stall = 0;
+        #1ns;
+        check_outputs("asynchronous reset");
+        repeat (2) @(posedge clk);
+        #1ns;
+        check_outputs("reset held");
+        @(negedge clk);
         rst_n = 1;
-        @(posedge clk);
     endtask
 
-
-
-    task timeout();
-        #1000000;
-        error_count++;
-        $fatal("Time: %0t, Timeout occurred.", $time);
-    endtask
-
-
-
-    task write(input data_t data);
-        automatic bit expected_full = is_fifo_full();
+    task automatic step(input bit offer_word, input bit request_pop);
+        bit push, pop;
 
         @(negedge clk);
-        tdata  = data;
-        tvalid = 1;
-        $display("Time: %0t, Writing data: %b to FIFO", $time, data);
-
-        @(posedge clk);
-        if(full !== expected_full) begin
-            $error(`RED_STR("Time: %0t, ERROR: Full flag mismatch. Expected: %b, Got: %b"), 
-                    $time, expected_full, full);
-            error_count++;
-        end
-
-        push_fifo(data);
-        @(negedge clk);
-        tvalid = 0;
-    endtask
-
-    task read();
-        automatic bit expected_empty = is_fifo_empty();
-        automatic data_t expected_data;
-
-        if (!expected_empty) begin
-            expected_data = fifo_q[0];
-        end
-
-        @(negedge clk);
-        r_en = 1;
-
-        @(posedge clk);
-        if(empty !== expected_empty) begin
-            $error(`RED_STR("Time: %0t, ERROR: Empty flag mismatch. Expected: %b, Got: %b"), 
-                    $time, expected_empty, empty);
-            error_count++;
-        end
-
-        if(!expected_empty) begin
-            if(r_data !== expected_data) begin
-                $error(`RED_STR("Time: %0t, ERROR: Read data %b does not match expected data %b"), 
-                        $time, r_data, expected_data);
-                error_count++;
-            end 
-            else begin
-                $display("Time: %0t, Read data %b matches expected data %b", 
-                        $time, r_data, expected_data);
-            end
-            void'(pop_fifo());
-        end
-
-        @(negedge clk);
-        r_en = 0;
-    endtask
-
-
-    task rw_test();
-        // Тестирование записи и чтения данных
-        repeat (10) begin
-            write($urandom);
-            read();
-        end
-    endtask
-
-    task test_overflow_underflow();
-        // Тестирование переполнения FIFO
-        repeat (DEPTH + 2) begin
-            write($urandom);
-        end
-
-        // Тестирование опустошения FIFO
-        repeat (DEPTH) begin
-            read();
-        end
-    endtask
-
-    task rand_op_test();
-        // Случайные операции записи и чтения
-        repeat (200) begin
-            if ($urandom_range(1)) begin
-                write($urandom);
-            end 
-            else begin
-                read();
+        if (!stalled) begin
+            tvalid = offer_word;
+            if (offer_word) begin
+                tdata = next_data;
+                next_data += 32'h9e37_79b9;
             end
         end
+        r_en = request_pop;
+
+        @(posedge clk);
+        check_outputs("before edge");
+        if (stalled && (tvalid !== 1'b1 || tdata !== stalled_data))
+            $fatal(1, "DEPTH=%0d at %t: source changed tvalid/tdata during stall", DEPTH, $time);
+
+        push = tvalid && tready;
+        pop  = r_en && !empty;
+        if (tvalid && r_en) begin
+            if (empty)
+                empty_push_pop++;
+            else if (full)
+                full_push_pop++;
+            else
+                interior_push_pop++;
+        end
+
+        if (pop) begin
+            void'(expected_words.pop_front());
+            popped_words++;
+        end
+        if (push) begin
+            expected_words.push_back(tdata);
+            accepted_words++;
+            if (stalled)
+                resumed_writes++;
+        end
+
+        stalled = tvalid && !tready;
+        if (stalled) begin
+            stalled_data = tdata;
+            stall_cycles++;
+            current_stall++;
+            if (current_stall > longest_stall)
+                longest_stall = current_stall;
+        end else begin
+            current_stall = 0;
+        end
+
+        #1ns;
+        check_outputs("after edge");
     endtask
 
-    task test_top();
-        initialize();
-
-        rw_test();
-        test_overflow_underflow();
-        rand_op_test();
+    task automatic drain();
+        while (expected_words.size() != 0 || stalled)
+            step(0, 1);
+        step(0, 1);
     endtask
 
+    initial begin
+        reset_fifo();
+        step(0, 1);
+        step(1, 1); // Empty accepts the write and exposes its head after the edge.
+        step(0, 1);
 
+        repeat (DEPTH) step(1, 0);
+        repeat (5) step(1, 0);
+        step(1, 1); // Full accepts only the pop. Keep the same input pending.
+        step(0, 1); // The pending word is now accepted with another pop.
+        repeat (3 * DEPTH) step(1, 1); // Wrap both pointers with concurrent push/pop.
+        drain();
 
-    initial begin: run_test
-        $timeformat(-9, 0, " ns", 5);
-        fork
-            test_top();
-            timeout();
-        join_any
+        repeat (DEPTH) step(1, 0);
+        step(1, 0);
+        reset_fifo(); // Discard a full FIFO and the source's unaccepted word.
+        step(0, 1);
+        step(1, 0);
+        step(0, 1);
 
+        repeat (1000)
+            step($urandom_range(3, 0) != 0, $urandom_range(1, 0) != 0);
+        drain();
+
+        if (empty_push_pop == 0 || full_push_pop == 0 || interior_push_pop == 0 ||
+            longest_stall < 5 || resumed_writes == 0 || reset_words != DEPTH)
+            $fatal(1, "DEPTH=%0d: missing boundary, backpressure or reset coverage", DEPTH);
+        if (accepted_words != popped_words + reset_words)
+            $fatal(1, "DEPTH=%0d: accepted=%0d popped=%0d discarded on reset=%0d",
+                   DEPTH, accepted_words, popped_words, reset_words);
+
+        $display("PASS DEPTH=%0d: accepted=%0d popped=%0d reset=%0d stalled cycles=%0d longest=%0d",
+                 DEPTH, accepted_words, popped_words, reset_words, stall_cycles, longest_stall);
+        $display("  Concurrent requests at empty/full/partial=%0d/%0d/%0d, resumed writes=%0d",
+                 empty_push_pop, full_push_pop, interior_push_pop, resumed_writes);
+        done = 1;
+    end
+endmodule
+
+module axis_input_fifo_tb_top;
+    timeunit 1ns;
+    timeprecision 1ps;
+
+    wire [3:0] done;
+    bit test_passed = 0;
+
+    axis_input_fifo_test #(.DEPTH(8))  test_8  (.done(done[0]));
+    axis_input_fifo_test #(.DEPTH(16)) test_16 (.done(done[1]));
+    axis_input_fifo_test #(.DEPTH(32)) test_32 (.done(done[2]));
+    axis_input_fifo_test #(.DEPTH(64)) test_64 (.done(done[3]));
+
+    initial begin
+        wait (&done);
+        test_passed = 1;
+        $display("PASS axis_input_fifo (DEPTH=8, 16, 32, 64)");
         $finish;
-    end: run_test
+    end
 
-    final begin
-        if (error_count == 0) begin
-            $display(`GREEN_STR("All tests passed successfully."));
-        end 
-        else begin
-            $display(`RED_STR("Test completed with %0d errors."), error_count);
-        end
+    initial begin
+        #1ms;
+        $fatal(1, "axis_input_fifo timeout, completed tests mask=%b", done);
     end
 endmodule

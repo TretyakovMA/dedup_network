@@ -107,53 +107,97 @@ module tx_regs (
     always_comb begin
         automatic logic is_valid_addr;
         automatic logic is_valid_rw;
-        is_valid_addr = '1; // No valid address check
+        is_valid_addr = '0;
         is_valid_rw = '1; // No valid RW check
         decoded_reg_strb.CTRL_REG = cpuif_req_masked & (cpuif_addr == 6'h0);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h0);
         decoded_reg_strb.MODE_REG = cpuif_req_masked & (cpuif_addr == 6'h1);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h1);
         decoded_reg_strb.AGING_PERIOD_LO = cpuif_req_masked & (cpuif_addr == 6'h2);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h2);
         decoded_reg_strb.AGING_PERIOD_HI = cpuif_req_masked & (cpuif_addr == 6'h3);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h3);
         decoded_reg_strb.BF_CTRL_REG = cpuif_req_masked & (cpuif_addr == 6'h4);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h4);
         decoded_reg_strb.SLRU_CFG_REG = cpuif_req_masked & (cpuif_addr == 6'h5);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h5);
         decoded_reg_strb.CMD_REG = cpuif_req_masked & (cpuif_addr == 6'h6);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h6);
         decoded_reg_strb.STATUS_REG = cpuif_req_masked & (cpuif_addr == 6'h7) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h7);
         decoded_reg_strb.INT_ENABLE_REG = cpuif_req_masked & (cpuif_addr == 6'h8);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h8);
         decoded_reg_strb.INT_STATUS_REG = cpuif_req_masked & (cpuif_addr == 6'h9);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h9);
         decoded_reg_strb.CRC_CFG_REG = cpuif_req_masked & (cpuif_addr == 6'ha);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'ha);
         decoded_reg_strb.HIT_RATE_THRESH_REG = cpuif_req_masked & (cpuif_addr == 6'hb);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'hb);
         decoded_reg_strb.CNT_TOTAL_WORDS[0] = cpuif_req_masked & (cpuif_addr == 6'hc) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'hc);
         decoded_reg_strb.CNT_TOTAL_WORDS[1] = cpuif_req_masked & (cpuif_addr == 6'hd) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'hd);
         decoded_reg_strb.CNT_TOTAL_WORDS[2] = cpuif_req_masked & (cpuif_addr == 6'he) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'he);
         decoded_reg_strb.CNT_TOTAL_WORDS[3] = cpuif_req_masked & (cpuif_addr == 6'hf) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'hf);
         decoded_reg_strb.CNT_KEY_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h10) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h10);
         decoded_reg_strb.CNT_KEY_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h11) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h11);
         decoded_reg_strb.CNT_KEY_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h12) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h12);
         decoded_reg_strb.CNT_KEY_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h13) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h13);
         decoded_reg_strb.CNT_RAW_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h14) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h14);
         decoded_reg_strb.CNT_RAW_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h15) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h15);
         decoded_reg_strb.CNT_RAW_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h16) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h16);
         decoded_reg_strb.CNT_RAW_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h17) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h17);
         decoded_reg_strb.CNT_SYNC_FRAMES[0] = cpuif_req_masked & (cpuif_addr == 6'h18) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h18);
         decoded_reg_strb.CNT_SYNC_FRAMES[1] = cpuif_req_masked & (cpuif_addr == 6'h19) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h19);
         decoded_reg_strb.CNT_SYNC_FRAMES[2] = cpuif_req_masked & (cpuif_addr == 6'h1a) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h1a);
         decoded_reg_strb.CNT_SYNC_FRAMES[3] = cpuif_req_masked & (cpuif_addr == 6'h1b) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h1b);
         decoded_reg_strb.CNT_BF_FILTERED[0] = cpuif_req_masked & (cpuif_addr == 6'h1c) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h1c);
         decoded_reg_strb.CNT_BF_FILTERED[1] = cpuif_req_masked & (cpuif_addr == 6'h1d) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h1d);
         decoded_reg_strb.CNT_BF_FILTERED[2] = cpuif_req_masked & (cpuif_addr == 6'h1e) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h1e);
         decoded_reg_strb.CNT_BF_FILTERED[3] = cpuif_req_masked & (cpuif_addr == 6'h1f) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h1f);
         decoded_reg_strb.SDR_CLK_DIV_LO = cpuif_req_masked & (cpuif_addr == 6'h20);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h20);
         decoded_reg_strb.SDR_CLK_DIV_HI = cpuif_req_masked & (cpuif_addr == 6'h21);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h21);
         decoded_reg_strb.I2C_CTRL_REG = cpuif_req_masked & (cpuif_addr == 6'h22);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h22);
         decoded_reg_strb.I2C_CLK_DIV_LO = cpuif_req_masked & (cpuif_addr == 6'h23);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h23);
         decoded_reg_strb.I2C_CLK_DIV_HI = cpuif_req_masked & (cpuif_addr == 6'h24);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h24);
         decoded_reg_strb.I2C_SENSOR_EN = cpuif_req_masked & (cpuif_addr == 6'h25);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h25);
         decoded_reg_strb.I2C_SENSOR_ADDR0 = cpuif_req_masked & (cpuif_addr == 6'h26);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h26);
         decoded_reg_strb.I2C_SENSOR_ADDR1 = cpuif_req_masked & (cpuif_addr == 6'h27);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h27);
         decoded_reg_strb.I2C_SENSOR_ADDR2 = cpuif_req_masked & (cpuif_addr == 6'h28);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h28);
         decoded_reg_strb.I2C_SENSOR_ADDR3 = cpuif_req_masked & (cpuif_addr == 6'h29);
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h29);
         decoded_reg_strb.I2C_STATUS_REG = cpuif_req_masked & (cpuif_addr == 6'h2a) & !cpuif_req_is_wr;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h2a);
         decoded_reg_strb.I2C_TIMEOUT_REG = cpuif_req_masked & (cpuif_addr == 6'h2b);
-        decoded_err = '0;
+        is_valid_addr |= cpuif_req_masked & (cpuif_addr == 6'h2b);
+        decoded_err = ~is_valid_addr & decoded_req;
     end
 
     // Pass down signals to next stage
@@ -1277,11 +1321,11 @@ module tx_regs (
         automatic logic load_next_c;
         next_c = field_storage.INT_STATUS_REG.fifo_overflow.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
-            next_c = field_storage.INT_STATUS_REG.fifo_overflow.value & ~(decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
+        if(hwif_in.INT_STATUS_REG.fifo_overflow.hwset) begin // HW Set
+            next_c = '1;
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.INT_STATUS_REG.fifo_overflow.next;
+        end else if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.fifo_overflow.value & ~(decoded_wr_data[0:0] & decoded_wr_biten[0:0]);
             load_next_c = '1;
         end
         field_combo.INT_STATUS_REG.fifo_overflow.next = next_c;
@@ -1326,11 +1370,11 @@ module tx_regs (
         automatic logic load_next_c;
         next_c = field_storage.INT_STATUS_REG.aging_event.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
-            next_c = field_storage.INT_STATUS_REG.aging_event.value & ~(decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
+        if(hwif_in.INT_STATUS_REG.aging_event.hwset) begin // HW Set
+            next_c = '1;
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.INT_STATUS_REG.aging_event.next;
+        end else if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.aging_event.value & ~(decoded_wr_data[2:2] & decoded_wr_biten[2:2]);
             load_next_c = '1;
         end
         field_combo.INT_STATUS_REG.aging_event.next = next_c;
@@ -1352,11 +1396,11 @@ module tx_regs (
         automatic logic load_next_c;
         next_c = field_storage.INT_STATUS_REG.high_hit_rate.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
-            next_c = field_storage.INT_STATUS_REG.high_hit_rate.value & ~(decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
+        if(hwif_in.INT_STATUS_REG.high_hit_rate.hwset) begin // HW Set
+            next_c = '1;
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.INT_STATUS_REG.high_hit_rate.next;
+        end else if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.high_hit_rate.value & ~(decoded_wr_data[3:3] & decoded_wr_biten[3:3]);
             load_next_c = '1;
         end
         field_combo.INT_STATUS_REG.high_hit_rate.next = next_c;
@@ -1378,11 +1422,11 @@ module tx_regs (
         automatic logic load_next_c;
         next_c = field_storage.INT_STATUS_REG.spi_addr_err.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
-            next_c = field_storage.INT_STATUS_REG.spi_addr_err.value & ~(decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
+        if(hwif_in.INT_STATUS_REG.spi_addr_err.hwset) begin // HW Set
+            next_c = '1;
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.INT_STATUS_REG.spi_addr_err.next;
+        end else if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.spi_addr_err.value & ~(decoded_wr_data[4:4] & decoded_wr_biten[4:4]);
             load_next_c = '1;
         end
         field_combo.INT_STATUS_REG.spi_addr_err.next = next_c;
@@ -1404,11 +1448,11 @@ module tx_regs (
         automatic logic load_next_c;
         next_c = field_storage.INT_STATUS_REG.i2c_nack.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
-            next_c = field_storage.INT_STATUS_REG.i2c_nack.value & ~(decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
+        if(hwif_in.INT_STATUS_REG.i2c_nack.hwset) begin // HW Set
+            next_c = '1;
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.INT_STATUS_REG.i2c_nack.next;
+        end else if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.i2c_nack.value & ~(decoded_wr_data[5:5] & decoded_wr_biten[5:5]);
             load_next_c = '1;
         end
         field_combo.INT_STATUS_REG.i2c_nack.next = next_c;
@@ -1430,11 +1474,11 @@ module tx_regs (
         automatic logic load_next_c;
         next_c = field_storage.INT_STATUS_REG.i2c_timeout.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
-            next_c = field_storage.INT_STATUS_REG.i2c_timeout.value & ~(decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
+        if(hwif_in.INT_STATUS_REG.i2c_timeout.hwset) begin // HW Set
+            next_c = '1;
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.INT_STATUS_REG.i2c_timeout.next;
+        end else if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.i2c_timeout.value & ~(decoded_wr_data[6:6] & decoded_wr_biten[6:6]);
             load_next_c = '1;
         end
         field_combo.INT_STATUS_REG.i2c_timeout.next = next_c;
@@ -1456,11 +1500,11 @@ module tx_regs (
         automatic logic load_next_c;
         next_c = field_storage.INT_STATUS_REG.i2c_bus_err.value;
         load_next_c = '0;
-        if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
-            next_c = field_storage.INT_STATUS_REG.i2c_bus_err.value & ~(decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
+        if(hwif_in.INT_STATUS_REG.i2c_bus_err.hwset) begin // HW Set
+            next_c = '1;
             load_next_c = '1;
-        end else begin // HW Write
-            next_c = hwif_in.INT_STATUS_REG.i2c_bus_err.next;
+        end else if(decoded_reg_strb.INT_STATUS_REG && decoded_req_is_wr) begin // SW write 1 clear
+            next_c = field_storage.INT_STATUS_REG.i2c_bus_err.value & ~(decoded_wr_data[7:7] & decoded_wr_biten[7:7]);
             load_next_c = '1;
         end
         field_combo.INT_STATUS_REG.i2c_bus_err.next = next_c;
@@ -2007,11 +2051,59 @@ module tx_regs (
     assign hwif_out.I2C_TIMEOUT_REG.val.value = field_storage.I2C_TIMEOUT_REG.val.value;
 
     //--------------------------------------------------------------------------
+    // Read double-buffers
+    //--------------------------------------------------------------------------
+    typedef struct {
+        struct {
+            logic [31:0] data;
+        } CNT_TOTAL_WORDS;
+        struct {
+            logic [31:0] data;
+        } CNT_KEY_FRAMES;
+        struct {
+            logic [31:0] data;
+        } CNT_RAW_FRAMES;
+        struct {
+            logic [31:0] data;
+        } CNT_SYNC_FRAMES;
+        struct {
+            logic [31:0] data;
+        } CNT_BF_FILTERED;
+    } rbuf_storage_t;
+    rbuf_storage_t rbuf_storage;
+
+    always_ff @(posedge clk) begin
+        if(decoded_reg_strb.CNT_TOTAL_WORDS[0] && !decoded_req_is_wr) begin
+            rbuf_storage.CNT_TOTAL_WORDS.data[31:0] <= hwif_in.CNT_TOTAL_WORDS.val.next;
+        end
+    end
+    always_ff @(posedge clk) begin
+        if(decoded_reg_strb.CNT_KEY_FRAMES[0] && !decoded_req_is_wr) begin
+            rbuf_storage.CNT_KEY_FRAMES.data[31:0] <= hwif_in.CNT_KEY_FRAMES.val.next;
+        end
+    end
+    always_ff @(posedge clk) begin
+        if(decoded_reg_strb.CNT_RAW_FRAMES[0] && !decoded_req_is_wr) begin
+            rbuf_storage.CNT_RAW_FRAMES.data[31:0] <= hwif_in.CNT_RAW_FRAMES.val.next;
+        end
+    end
+    always_ff @(posedge clk) begin
+        if(decoded_reg_strb.CNT_SYNC_FRAMES[0] && !decoded_req_is_wr) begin
+            rbuf_storage.CNT_SYNC_FRAMES.data[31:0] <= hwif_in.CNT_SYNC_FRAMES.val.next;
+        end
+    end
+    always_ff @(posedge clk) begin
+        if(decoded_reg_strb.CNT_BF_FILTERED[0] && !decoded_req_is_wr) begin
+            rbuf_storage.CNT_BF_FILTERED.data[31:0] <= hwif_in.CNT_BF_FILTERED.val.next;
+        end
+    end
+
+    //--------------------------------------------------------------------------
     // Write response
     //--------------------------------------------------------------------------
     assign cpuif_wr_ack = decoded_req & decoded_req_is_wr;
     // Writes are always granted with no error response
-    assign cpuif_wr_err = '0;
+    assign cpuif_wr_err = decoded_err;
 
     //--------------------------------------------------------------------------
     // Readback
@@ -2095,61 +2187,61 @@ module tx_regs (
             readback_data_var[7:0] = hwif_in.CNT_TOTAL_WORDS.val.next[7:0];
         end
         if(rd_mux_addr == 6'hd) begin
-            readback_data_var[7:0] = hwif_in.CNT_TOTAL_WORDS.val.next[15:8];
+            readback_data_var = rbuf_storage.CNT_TOTAL_WORDS.data[15:8];
         end
         if(rd_mux_addr == 6'he) begin
-            readback_data_var[7:0] = hwif_in.CNT_TOTAL_WORDS.val.next[23:16];
+            readback_data_var = rbuf_storage.CNT_TOTAL_WORDS.data[23:16];
         end
         if(rd_mux_addr == 6'hf) begin
-            readback_data_var[7:0] = hwif_in.CNT_TOTAL_WORDS.val.next[31:24];
+            readback_data_var = rbuf_storage.CNT_TOTAL_WORDS.data[31:24];
         end
         if(rd_mux_addr == 6'h10) begin
             readback_data_var[7:0] = hwif_in.CNT_KEY_FRAMES.val.next[7:0];
         end
         if(rd_mux_addr == 6'h11) begin
-            readback_data_var[7:0] = hwif_in.CNT_KEY_FRAMES.val.next[15:8];
+            readback_data_var = rbuf_storage.CNT_KEY_FRAMES.data[15:8];
         end
         if(rd_mux_addr == 6'h12) begin
-            readback_data_var[7:0] = hwif_in.CNT_KEY_FRAMES.val.next[23:16];
+            readback_data_var = rbuf_storage.CNT_KEY_FRAMES.data[23:16];
         end
         if(rd_mux_addr == 6'h13) begin
-            readback_data_var[7:0] = hwif_in.CNT_KEY_FRAMES.val.next[31:24];
+            readback_data_var = rbuf_storage.CNT_KEY_FRAMES.data[31:24];
         end
         if(rd_mux_addr == 6'h14) begin
             readback_data_var[7:0] = hwif_in.CNT_RAW_FRAMES.val.next[7:0];
         end
         if(rd_mux_addr == 6'h15) begin
-            readback_data_var[7:0] = hwif_in.CNT_RAW_FRAMES.val.next[15:8];
+            readback_data_var = rbuf_storage.CNT_RAW_FRAMES.data[15:8];
         end
         if(rd_mux_addr == 6'h16) begin
-            readback_data_var[7:0] = hwif_in.CNT_RAW_FRAMES.val.next[23:16];
+            readback_data_var = rbuf_storage.CNT_RAW_FRAMES.data[23:16];
         end
         if(rd_mux_addr == 6'h17) begin
-            readback_data_var[7:0] = hwif_in.CNT_RAW_FRAMES.val.next[31:24];
+            readback_data_var = rbuf_storage.CNT_RAW_FRAMES.data[31:24];
         end
         if(rd_mux_addr == 6'h18) begin
             readback_data_var[7:0] = hwif_in.CNT_SYNC_FRAMES.val.next[7:0];
         end
         if(rd_mux_addr == 6'h19) begin
-            readback_data_var[7:0] = hwif_in.CNT_SYNC_FRAMES.val.next[15:8];
+            readback_data_var = rbuf_storage.CNT_SYNC_FRAMES.data[15:8];
         end
         if(rd_mux_addr == 6'h1a) begin
-            readback_data_var[7:0] = hwif_in.CNT_SYNC_FRAMES.val.next[23:16];
+            readback_data_var = rbuf_storage.CNT_SYNC_FRAMES.data[23:16];
         end
         if(rd_mux_addr == 6'h1b) begin
-            readback_data_var[7:0] = hwif_in.CNT_SYNC_FRAMES.val.next[31:24];
+            readback_data_var = rbuf_storage.CNT_SYNC_FRAMES.data[31:24];
         end
         if(rd_mux_addr == 6'h1c) begin
             readback_data_var[7:0] = hwif_in.CNT_BF_FILTERED.val.next[7:0];
         end
         if(rd_mux_addr == 6'h1d) begin
-            readback_data_var[7:0] = hwif_in.CNT_BF_FILTERED.val.next[15:8];
+            readback_data_var = rbuf_storage.CNT_BF_FILTERED.data[15:8];
         end
         if(rd_mux_addr == 6'h1e) begin
-            readback_data_var[7:0] = hwif_in.CNT_BF_FILTERED.val.next[23:16];
+            readback_data_var = rbuf_storage.CNT_BF_FILTERED.data[23:16];
         end
         if(rd_mux_addr == 6'h1f) begin
-            readback_data_var[7:0] = hwif_in.CNT_BF_FILTERED.val.next[31:24];
+            readback_data_var = rbuf_storage.CNT_BF_FILTERED.data[31:24];
         end
         if(rd_mux_addr == 6'h20) begin
             readback_data_var[7:0] = field_storage.SDR_CLK_DIV_LO.val.value;
@@ -2199,7 +2291,7 @@ module tx_regs (
         end
         readback_data = readback_data_var;
         readback_done = decoded_req & ~decoded_req_is_wr;
-        readback_err = '0;
+        readback_err = decoded_err;
     end
 
     assign cpuif_rd_ack = readback_done;

@@ -1,25 +1,43 @@
-+incdir+$(TB_TOP_PATH)
-+incdir+$(COMMON_PATH)/uvc/report_server
-+incdir+$(COMMON_PATH)/uvc/clock_uvc
-+incdir+$(COMMON_PATH)/uvc/reset_uvc
-+incdir+$(COMMON_PATH)/uvc/spi_agent
-
-// interfaces
-$(RTL_PATH)/interfaces/axis_if.sv 
-$(RTL_PATH)/interfaces/spi_if.sv 
-$(TB_TOP_PATH)/interfaces/sdr_interface.sv
-
 // rtl
 $(RTL_PATH)/gen/tx_regs_pkg.sv 
 $(RTL_PATH)/gen/tx_regs.sv 
 $(RTL_PATH)/common/fifo.sv 
 $(RTL_PATH)/common/axis_input_fifo.sv 
+$(RTL_PATH)/transmitter/tdl_tx_pkg.sv
+$(RTL_PATH)/transmitter/tdl_tab_hash_pkg.sv
 $(RTL_PATH)/transmitter/spi_tx_regs_wrapper.sv 
 $(RTL_PATH)/transmitter/gf2_xor_hash.sv 
+$(RTL_PATH)/transmitter/tdl_parallel_search.sv
+$(RTL_PATH)/transmitter/tdl_dict_storage.sv
+$(RTL_PATH)/transmitter/tdl_dict_unit.sv
 $(RTL_PATH)/transmitter/tdl_tx_controller.sv 
+$(RTL_PATH)/transmitter/tdl_tab_hash.sv
+$(RTL_PATH)/transmitter/tdl_bloom_filter.sv
+$(RTL_PATH)/transmitter/tdl_cms.sv
+$(RTL_PATH)/transmitter/tdl_aging_ctrl.sv
+$(RTL_PATH)/transmitter/tdl_tinylfu_policy.sv
+$(RTL_PATH)/transmitter/tdl_slru_policy.sv
+$(RTL_PATH)/transmitter/tdl_clock_policy.sv
+$(RTL_PATH)/transmitter/tdl_lfu_policy.sv
+$(RTL_PATH)/transmitter/tdl_tx_policy.sv
+$(RTL_PATH)/transmitter/tdl_tx_frame_buffer.sv
+$(RTL_PATH)/transmitter/tdl_sdr_timing.sv
+$(RTL_PATH)/transmitter/tdl_tx_serializer.sv
+$(RTL_PATH)/transmitter/tdl_tx_stats.sv
+$(RTL_PATH)/transmitter/tdl_tx_reg_bridge.sv
 $(RTL_PATH)/transmitter/tdl_tx_top.sv 
 
-// tb
+// uvc
++incdir+$(TB_TOP_PATH)
++incdir+$(COMMON_PATH)/uvc/report_server
++incdir+$(COMMON_PATH)/uvc/clock_uvc
++incdir+$(COMMON_PATH)/uvc/reset_uvc
++incdir+$(COMMON_PATH)/uvc/spi_agent
 $(COMMON_PATH)/gen/tx_reg_model.sv
+$(COMMON_PATH)/uvc/clock_uvc/clock_uvc_pkg.sv
+$(COMMON_PATH)/uvc/reset_uvc/reset_uvc_pkg.sv
+$(COMMON_PATH)/uvc/spi_agent/spi_agent_pkg.sv
+
+// tb
 $(TB_TOP_PATH)/pkgs/tx_pkg.sv
 $(TB_TOP_PATH)/tdl_tx_top_tb.sv

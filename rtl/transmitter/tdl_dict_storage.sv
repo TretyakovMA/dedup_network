@@ -1,6 +1,6 @@
-// ============================================================================
-// Модуль хранения и добавления/обновления слов словаря
-// ============================================================================
+`ifndef TDL_DICT_STORAGE
+`define TDL_DICT_STORAGE
+// Хранилище словаря TX с валидностью строк и выбором минимального свободного индекса.
 module tdl_dict_storage #(
     parameter  int DATA_WIDTH = 32,
     parameter  int DICT_SIZE  = 256,
@@ -37,7 +37,7 @@ module tdl_dict_storage #(
             array_reg <= '0;
         end else if (flush) begin
             valid_reg <= '0;
-        end else if (wr_en) begin
+        end else if (wr_en && (int'(wr_index) < DICT_SIZE)) begin
             array_reg[wr_index] <= wr_data;
             valid_reg[wr_index] <= 1'b1;
         end
@@ -69,4 +69,15 @@ module tdl_dict_storage #(
 
     assign dict_full = (occupied_count == DICT_SIZE);
 
+`ifndef SYNTHESIS
+    // Проверки параметров при запуске моделирования.
+    initial begin
+        assert (DATA_WIDTH > 0)
+            else $error("tdl_dict_storage requires DATA_WIDTH > 0");
+        assert (DICT_SIZE >= 2)
+            else $error("tdl_dict_storage requires DICT_SIZE >= 2");
+    end
+`endif
+
 endmodule
+`endif

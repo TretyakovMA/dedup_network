@@ -1,0 +1,5 @@
+$(RTL_PATH)/gen/tx_regs_pkg.sv
+$(RTL_PATH)/gen/tx_regs.sv
+$(RTL_PATH)/transmitter/tdl_tx_pkg.sv
+$(RTL_PATH)/transmitter/tdl_tx_reg_bridge.sv
+$(TB_TOP_PATH)/tdl_tx_reg_bridge_tb_top.sv

@@ -1,0 +1,4 @@
+$(RTL_PATH)/gen/tx_regs_pkg.sv
+$(RTL_PATH)/gen/tx_regs.sv
+$(RTL_PATH)/transmitter/spi_tx_regs_wrapper.sv
+$(TB_TOP_PATH)/spi_tx_regs_wrapper_protocol_tb_top.sv

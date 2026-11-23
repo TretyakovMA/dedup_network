@@ -16,6 +16,7 @@ package spi_pkg;
     `include "tests/spi_base_test.sv"
     `include "tests/spi_reg_hw_reset_test.sv"
     `include "tests/spi_reg_bit_bash_test.sv"
+    `include "tests/spi_irq_test.sv"
 endpackage: spi_pkg
 
 `endif

@@ -41,31 +41,31 @@ package tx_regs_pkg;
     } tx_regs__status_reg_t__in_t;
 
     typedef struct {
-        logic next;
+        logic hwset;
     } tx_regs__int_status_reg_t__fifo_overflow__in_t;
 
     typedef struct {
-        logic next;
+        logic hwset;
     } tx_regs__int_status_reg_t__aging_event__in_t;
 
     typedef struct {
-        logic next;
+        logic hwset;
     } tx_regs__int_status_reg_t__high_hit_rate__in_t;
 
     typedef struct {
-        logic next;
+        logic hwset;
     } tx_regs__int_status_reg_t__spi_addr_err__in_t;
 
     typedef struct {
-        logic next;
+        logic hwset;
     } tx_regs__int_status_reg_t__i2c_nack__in_t;
 
     typedef struct {
-        logic next;
+        logic hwset;
     } tx_regs__int_status_reg_t__i2c_timeout__in_t;
 
     typedef struct {
-        logic next;
+        logic hwset;
     } tx_regs__int_status_reg_t__i2c_bus_err__in_t;
 
     typedef struct {

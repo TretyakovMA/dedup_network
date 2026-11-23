@@ -1,0 +1,4 @@
+$(RTL_PATH)/transmitter/tdl_parallel_search.sv
+$(RTL_PATH)/transmitter/tdl_dict_storage.sv
+$(RTL_PATH)/transmitter/tdl_dict_unit.sv
+$(TB_TOP_PATH)/tdl_dict_unit_tb_top.sv

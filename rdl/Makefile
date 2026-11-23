@@ -18,7 +18,7 @@ all: rtl uvm html
 
 # 1. Генерация RTL (SystemVerilog)
 rtl: $(RDL_SRC)
-	$(PEAKRDL) regblock $(RDL_SRC) -o $(RTL_DIR) --cpuif $(CPU_IF)
+	$(PEAKRDL) regblock $(RDL_SRC) -o $(RTL_DIR) --cpuif $(CPU_IF) --err-if-bad-addr
 
 # 2. Генерация UVM RAL модели
 uvm: $(RDL_SRC)

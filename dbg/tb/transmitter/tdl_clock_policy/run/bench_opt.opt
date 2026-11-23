@@ -1,0 +1,2 @@
+$(RTL_PATH)/transmitter/tdl_clock_policy.sv
+$(TB_TOP_PATH)/tdl_clock_policy_tb_top.sv

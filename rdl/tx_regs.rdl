@@ -4,6 +4,8 @@
 * CPU Interface: SPI (8-bit, Byte Addressing)
 */
 
+property buffer_reads { type = boolean; component = reg; };
+
 addrmap tx_regs {
     name = "tdl_tx_top Registers";
     desc = "Карта регистров передатчика";
@@ -363,9 +365,11 @@ addrmap tx_regs {
         field {
             name    = "FIFO_OVERFLOW";
             desc    = "Входное FIFO заполнено, опрос датчиков приостановлен";
-            sw      = rw; 
-            hw      = rw;
-            onwrite = woclr; 
+            sw      = rw;
+            hw      = r;
+            hwset;
+            precedence = hw;
+            onwrite = woclr;
             reset   = 1'b0;
         } fifo_overflow[0:0];
 
@@ -380,27 +384,33 @@ addrmap tx_regs {
         field {
             name    = "AGING_EVENT";
             desc    = "Зафиксирован цикл затухания/ротации Блума";
-            sw      = rw; 
-            hw      = rw;
-            onwrite = woclr; 
+            sw      = rw;
+            hw      = r;
+            hwset;
+            precedence = hw;
+            onwrite = woclr;
             reset   = 1'b0;
         } aging_event[2:2];
 
         field {
             name    = "HIGH_HIT_RATE";
             desc    = "Зафиксировано превышение порога hit rate";
-            sw      = rw; 
-            hw      = rw;
-            onwrite = woclr; 
+            sw      = rw;
+            hw      = r;
+            hwset;
+            precedence = hw;
+            onwrite = woclr;
             reset   = 1'b0;
         } high_hit_rate[3:3];
 
         field {
             name    = "SPI_ADDR_ERR";
-            desc    = "Зафиксировано обращение к незарезервированному адресу";
-            sw      = rw; 
-            hw      = rw;
-            onwrite = woclr; 
+            desc    = "Зафиксировано обращение к адресу вне карты CSR";
+            sw      = rw;
+            hw      = r;
+            hwset;
+            precedence = hw;
+            onwrite = woclr;
             reset   = 1'b0;
         } spi_addr_err[4:4];
 
@@ -408,7 +418,9 @@ addrmap tx_regs {
             name    = "I2C_NACK";
             desc    = "Зафиксирован NACK от датчика I2C";
             sw      = rw;
-            hw      = rw;
+            hw      = r;
+            hwset;
+            precedence = hw;
             onwrite = woclr;
             reset   = 1'b0;
         } i2c_nack[5:5];
@@ -417,7 +429,9 @@ addrmap tx_regs {
             name    = "I2C_TIMEOUT";
             desc    = "Зафиксирован таймаут транзакции I2C";
             sw      = rw;
-            hw      = rw;
+            hw      = r;
+            hwset;
+            precedence = hw;
             onwrite = woclr;
             reset   = 1'b0;
         } i2c_timeout[6:6];
@@ -426,7 +440,9 @@ addrmap tx_regs {
             name    = "I2C_BUS_ERR";
             desc    = "Зафиксирована ошибка или зависание шины I2C";
             sw      = rw;
-            hw      = rw;
+            hw      = r;
+            hwset;
+            precedence = hw;
             onwrite = woclr;
             reset   = 1'b0;
         } i2c_bus_err[7:7];
@@ -497,6 +513,7 @@ addrmap tx_regs {
    
     reg cnt_32_t {
         name = "32-bit Performance Counter";
+        buffer_reads = true;
         regwidth    = 32; // Явно указываем 32 бита для данного типа регистра
         accesswidth = 8;  // Доступ по 8-битному SPI
         field {

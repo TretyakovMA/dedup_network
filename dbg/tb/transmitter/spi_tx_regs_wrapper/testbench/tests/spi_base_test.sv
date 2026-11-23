@@ -35,6 +35,7 @@ class spi_base_test extends uvm_test;
         end
 
         cfg.clk_period = clk_cfg.get_period();
+        cfg.prer = 8; // Four system clocks per SPI half-period.
 
         uvm_config_db #(spi_config)::set(null, "*", "spi_config", cfg);
         env         = spi_env::type_id::create("env", this);

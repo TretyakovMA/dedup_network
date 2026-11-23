@@ -1,6 +1,6 @@
-// ============================================================================
-// Модуль параллельного поиска слова в несортированном массиве
-// ============================================================================
+`ifndef TDL_PARALLEL_SEARCH
+`define TDL_PARALLEL_SEARCH
+// Комбинационный точный поиск слова с выбором минимального совпавшего индекса.
 module tdl_parallel_search #(
     parameter  int DATA_WIDTH = 32,
     parameter  int DICT_SIZE  = 256,
@@ -41,4 +41,15 @@ module tdl_parallel_search #(
         end
     end
 
+`ifndef SYNTHESIS
+    // Проверки параметров при запуске моделирования.
+    initial begin
+        assert (DATA_WIDTH > 0)
+            else $error("tdl_parallel_search requires DATA_WIDTH > 0");
+        assert (DICT_SIZE >= 2)
+            else $error("tdl_parallel_search requires DICT_SIZE >= 2");
+    end
+`endif
+
 endmodule
+`endif

@@ -11,11 +11,13 @@ module spi_tx_regs_wrapper_tb_top;
     clock_uvc_if clk_if();
     reset_uvc_if rst_if();
 
-    tx_regs_pkg::tx_regs__in_t  hwif_in = '{default: '0};
+    tx_regs_pkg::tx_regs__in_t  hwif_in;
     tx_regs_pkg::tx_regs__out_t hwif_out;
 
     spi_interface spi_if(clk_if.clk, rst_if.rst);
-    logic spi_irq;
+    logic spi_irq, spi_addr_err_event;
+    spi_irq_check_if irq_if(clk_if.clk, rst_if.rst, spi_irq);
+    bit test_passed = 0;
 
     spi_tx_regs_wrapper dut(
         .clk     (clk_if.clk),
@@ -25,11 +27,27 @@ module spi_tx_regs_wrapper_tb_top;
         .spi_mosi(spi_if.mosi),
         .spi_miso(spi_if.miso),
         .spi_irq (spi_irq),
+        .spi_addr_err_event(spi_addr_err_event),
         .hwif_in (hwif_in),
         .hwif_out(hwif_out)
     );
 
-    
+    always_comb begin
+        hwif_in = '{default: '0};
+        hwif_in.INT_STATUS_REG.spi_addr_err.hwset = spi_addr_err_event;
+    end
+
+    always @(posedge clk_if.clk) begin
+        if (!rst_if.rst) begin
+            irq_if.accesses <= 0;
+            irq_if.errors   <= 0;
+        end else begin
+            if (dut.bus_complete)
+                irq_if.accesses <= irq_if.accesses + 1;
+            if (spi_addr_err_event)
+                irq_if.errors <= irq_if.errors + 1;
+        end
+    end
 
     initial begin
         automatic clock_uvc_config clk_config = clock_uvc_config::type_id::create("clk_config");
@@ -46,13 +64,19 @@ module spi_tx_regs_wrapper_tb_top;
     end
 
     initial begin
+        uvm_report_server server;
         $timeformat(-9, 0, " ns", 5);
 
         uvm_config_db #(virtual interface spi_interface.driver)::set(null, "uvm_test_top.env.spi_agent.driver", "vif", spi_if);
         uvm_config_db #(virtual interface spi_interface.monitor)::set(null, "uvm_test_top.env.spi_agent.write_monitor", "vif", spi_if);
         uvm_config_db #(virtual interface spi_interface.monitor)::set(null, "uvm_test_top.env.spi_agent.read_monitor", "vif", spi_if);
+        uvm_config_db #(virtual spi_irq_check_if.monitor)::set(null, "uvm_test_top", "irq_vif", irq_if);
 
+        uvm_top.finish_on_completion = 0;
         run_test();
+        server = uvm_report_server::get_server();
+        test_passed = server.get_severity_count(UVM_ERROR) == 0 && server.get_severity_count(UVM_FATAL) == 0;
+        $finish;
     end
 
 endmodule: spi_tx_regs_wrapper_tb_top

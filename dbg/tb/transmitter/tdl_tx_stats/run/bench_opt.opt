@@ -1,0 +1,3 @@
+$(RTL_PATH)/transmitter/tdl_tx_pkg.sv
+$(RTL_PATH)/transmitter/tdl_tx_stats.sv
+$(TB_TOP_PATH)/tdl_tx_stats_tb_top.sv

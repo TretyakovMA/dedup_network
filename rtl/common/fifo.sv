@@ -1,5 +1,6 @@
 `ifndef FIFO
 `define FIFO
+// Синхронное FIFO с комбинационным чтением головного слова (FWFT).
 module fifo #(
     parameter int WIDTH = 32, // Разрядность данных
     parameter int DEPTH = 16  // Глубина FIFO (должна быть степенью двойки)
@@ -63,6 +64,16 @@ module fifo #(
     // В данной реализации применен режим First-Word Fall-Through (FWFT):
     // как только данные появляются в FIFO, они сразу видны на шине rdata.
     assign r_data = mem[raddr];
+
+`ifndef SYNTHESIS
+    // Проверки параметров при запуске моделирования.
+    initial begin
+        assert (WIDTH > 0)
+            else $error("fifo requires WIDTH > 0");
+        assert ((DEPTH >= 2) && ((DEPTH & (DEPTH - 1)) == 0))
+            else $error("fifo requires DEPTH to be a power of two >= 2");
+    end
+`endif
 
 endmodule
 `endif
